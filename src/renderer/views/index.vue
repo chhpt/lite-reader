@@ -4,7 +4,9 @@
       <el-aside id="aside">
         <Aside></Aside>
       </el-aside>
-      <el-main id="main">
+      <el-main id="main"
+               v-loading="loading"
+               element-loading-text="拼命加载中">
         <Main></Main>
       </el-main>
     </el-container>
@@ -12,21 +14,31 @@
 </template>
 
 <script>
+  import { mapGetters } from 'vuex';
   import Split from 'split.js';
   import Aside from './aside';
   import Main from './main';
 
   export default {
     name: 'index',
+    computed: {
+      ...mapGetters([
+        'loading'
+      ])
+    },
+    watch: {
+      loading() {
+      }
+    },
     mounted() {
       // split panel
       Split(['#aside', '#main'], {
         sizes: [25, 75],
-        minSize: [150, 600],
+        minSize: [180, 600],
         cursor: 'col-resize',
         gutterStyle() {
           return {
-            width: '4px'
+            width: '2px'
           };
         }
       });

@@ -14,13 +14,23 @@ export const getMenu = app => service({
 });
 
 export const getArticleList = (app, page, column, url, id) => service({
-  url: '/$get_article_list',
+  url: '/get_article_list',
+  method: 'get',
   params: {
     app,
     page,
     column,
     url,
     id
+  }
+});
+
+export const getArticle = (app, url) => service({
+  url: '/get_article',
+  method: 'get',
+  params: {
+    app,
+    url
   }
 });
 export default 0;

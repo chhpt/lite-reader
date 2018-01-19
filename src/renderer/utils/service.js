@@ -24,6 +24,7 @@ service.interceptors.response.use(response => response.data, (error) => {
     }
   } else if (error.message.indexOf('timeout') > -1) {
     // 请求超时
+    store.commit('setLoading', false);
     return Promise.reject('请求超时，请重试');
   } else {
     // 其他在设置请求时触发的错误
