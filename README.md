@@ -1,6 +1,6 @@
 # lite-reader
 
-LiteReader 聚合阅读 APP
+LiteReader 桌面端聚合阅读 APP
 
 ## Build Setup
 

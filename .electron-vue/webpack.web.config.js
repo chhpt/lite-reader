@@ -31,7 +31,7 @@ let webConfig = {
       {
         test: /\.css$/,
         use: ExtractTextPlugin.extract({
-          fallback: 'styles-loader',
+          fallback: 'style-loader',
           use: 'css-loader'
         })
       },
@@ -52,8 +52,8 @@ let webConfig = {
           options: {
             extractCSS: true,
             loaders: {
-              sass: 'vue-styles-loader!css-loader!sass-loader?indentedSyntax=1',
-              scss: 'vue-styles-loader!css-loader!sass-loader'
+              sass: 'vue-style-loader!css-loader!sass-loader?indentedSyntax=1',
+              scss: 'vue-style-loader!css-loader!sass-loader'
             }
           }
         }
