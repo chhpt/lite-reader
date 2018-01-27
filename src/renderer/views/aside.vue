@@ -6,7 +6,7 @@
     <div class="line"></div>
     <div v-for="app in appList" class="app">
       <img :src="app.icon" alt="app">
-      <span @click="getAppMenu(app.id)" class="app-name">{{app.name}}</span>
+      <span @click="getAppMenu(app.id, app.type)" class="app-name">{{app.name}}</span>
     </div>
   </div>
 </template>
@@ -16,19 +16,43 @@
 
   export default {
     methods: {
-      getAppMenu(id) {
+      async getAppMenu(id, type) {
         this.setLoading(true);
-        this.$store.commit('setAppName', id);
-        this.fetchMenu(id).then(() => {
+        // 普通应用
+        if (!type) {
+          // 设置应用名称
+          this.$store.commit('setAppName', id);
+          // 获取栏目列表
+          const menu = await this.fetchMenu(id);
+          // 默认直接加载第一个栏目的文章
+          const column = menu[0].title;
+          this.setActiveItem(column);
+          await this.fetchArticleList({
+            column,
+            app: id,
+            page: 1,
+            url: menu[0].url
+          });
           this.setLoading(false);
-        });
+        } else { // 微信公众号
+          this.$store.commit('setAppName', 'weixin');
+          this.fetchArticleList({
+            app: 'weixin',
+            page: 1,
+            column: id
+          }).then(() => {
+            this.setLoading(false);
+          });
+        }
         this.$router.push('list');
       },
       ...mapMutations([
+        'setActiveItem',
         'setLoading'
       ]),
       ...mapActions([
-        'fetchMenu'
+        'fetchMenu',
+        'fetchArticleList'
       ])
     },
     computed: {

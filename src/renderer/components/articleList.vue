@@ -1,20 +1,24 @@
 <template>
   <div id="article-list">
     <el-container>
+      <!--栏目-->
       <el-header height="60px">
-        <el-tabs v-model="activeItem" @tab-click="handleTabClick" tab-position="bottom">
-          <el-tab-pane v-for="item in menu" :label="item.title" :name="item.title" :url="item.url" class="menu-item">
+        <el-tabs v-model="activeItem"
+                 @tab-click="handleTabClick"
+                 tab-position="bottom">
+          <el-tab-pane v-for="item in menu" :label="item.title" :name="item.title" :url="item.url" :key="item.title" class="menu-item">
           </el-tab-pane>
         </el-tabs>
       </el-header>
       <el-main>
-        <el-card v-for="article in articleList" :body-style="cardStyle" class="article">
+        <!--文章列表-->
+        <el-card v-for="article in articleList" :body-style="cardStyle" :key="article.id" class="article">
           <div class="article-info">
             <div class="article-title" @click="loadArticle(article.url)">
               {{article.title}}
             </div>
             <div class="article-intro">
-              {{article.intro}}
+              {{article.summary}}
             </div>
           </div>
           <div class="left">
@@ -23,6 +27,11 @@
             </div>
           </div>
         </el-card>
+        <div class="load-more">
+          <el-button plain :loading="false">
+            加载更多
+          </el-button>
+        </div>
       </el-main>
     </el-container>
   </div>
@@ -66,7 +75,7 @@
           url,
           id,
           app: this.name,
-          page: 0,
+          page: 1,
           column: this.activeItem
         }).then(() => {
           this.setLoading(false);
@@ -151,5 +160,11 @@
       font-size: 1.6rem;
       line-height: 2.5rem;
     }
+  }
+
+  .load-more {
+    display: flex;
+    justify-content: center;
+    margin: 4rem 0;
   }
 </style>
