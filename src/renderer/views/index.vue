@@ -1,8 +1,8 @@
 <template>
   <div id="root">
     <el-container>
-      <el-aside id="aside">
-        <Aside></Aside>
+      <el-aside id="aside" :style="sidebarStyle">
+        <Aside :close="close"></Aside>
       </el-aside>
       <el-main id="main"
                v-loading="loading"
@@ -21,25 +21,37 @@
 
   export default {
     name: 'index',
+    data() {
+      return {
+        close: false,
+        sidebarStyle: {
+          width: '18rem'
+        }
+      };
+    },
     computed: {
       ...mapGetters([
         'loading'
       ])
     },
-    watch: {
-      loading() {
-      }
-    },
     mounted() {
+      this.$bus.$on('toggle-sidebar', () => {
+        this.close = !this.close;
+        this.sidebarStyle.width = this.close ? '8rem' : '18rem';
+      });
       // split panel
       Split(['#aside', '#main'], {
         sizes: [25, 75],
-        minSize: [180, 600],
+        minSize: [80, 600],
         cursor: 'col-resize',
         gutterStyle() {
           return {
             width: '2px'
           };
+        },
+        onDrag: () => {
+          const width = document.querySelector('#c-aside').clientWidth;
+          this.close = width < 180;
         }
       });
     },

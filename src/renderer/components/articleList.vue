@@ -3,10 +3,11 @@
     <el-container>
       <!--栏目-->
       <el-header height="60px">
-        <el-tabs v-model="activeItem"
+        <el-tabs v-model="active"
                  @tab-click="handleTabClick"
                  tab-position="bottom">
-          <el-tab-pane v-for="item in menu" :label="item.title" :name="item.title" :url="item.url" :key="item.title" class="menu-item">
+          <el-tab-pane v-for="item in menu" :label="item.title" :name="item.title" :url="item.url" :key="item.title"
+                       class="menu-item">
           </el-tab-pane>
         </el-tabs>
       </el-header>
@@ -27,8 +28,9 @@
             </div>
           </div>
         </el-card>
-        <div class="load-more">
-          <el-button plain :loading="false">
+        <!--有文章时才显示加载更多-->
+        <div class="load-more" v-if="articleList.length">
+          <el-button plain :loading="loading" @click="loadMoreArticles">
             加载更多
           </el-button>
         </div>
@@ -43,44 +45,46 @@
     name: 'articleList',
     data() {
       return {
+        page: 1,
+        active: '',
         cardStyle: {
           display: 'flex',
           justifyContent: 'space-between',
           height: '100%',
           padding: '15px'
-        }
+        },
+        loading: false
       };
     },
+    watch: {
+      activeItem(newValue) {
+        this.active = newValue.title;
+      }
+    },
     computed: {
-      activeItem: {
-        get() {
-          return this.$store.state.app.activeItem;
-        },
-        set(newValue) {
-          this.setActiveItem(newValue);
-        }
-      },
       ...mapGetters([
+        'activeItem',
         'menu',
         'name',
         'articleList'
       ])
     },
     methods: {
+      // 切换栏目
       handleTabClick(tab) {
+        // 设置激活栏目
+        this.setActiveItem(this.menu[tab.index]);
         const url = this.menu[tab.index].url;
+        // 文章 id
         const id = 0;
         this.setLoading(true);
         this.fetchArticleList({
-          url,
-          id,
-          app: this.name,
-          page: 1,
-          column: this.activeItem
+          url, id, app: this.name, page: 1, column: this.activeItem.title
         }).then(() => {
           this.setLoading(false);
         });
       },
+      // 加载文章
       loadArticle(url) {
         this.setLoading(true);
         this.fetchArticle({
@@ -92,12 +96,31 @@
         });
         this.$router.replace('/reader');
       },
+      // 加载更多文章
+      loadMoreArticles() {
+        this.loading = true;
+        // 最后一篇文章的 id
+        const id = this.articleList[this.articleList.length - 1].id;
+        this.page = this.page + 1;
+        this.fetchMoreArticles({
+          id,
+          app: this.name,
+          column: this.activeItem.title,
+          page: this.page,
+          url: this.activeItem.url
+        }).then(() => {
+          this.loading = false;
+        }).catch(() => {
+          this.loading = false;
+        });
+      },
       ...mapMutations([
         'setLoading',
         'setActiveItem'
       ]),
       ...mapActions([
         'fetchArticleList',
+        'fetchMoreArticles',
         'fetchArticle'
       ])
     }
@@ -119,11 +142,13 @@
     width: 100%;
     background: #fff;
     box-shadow: 2px 2px 12px rgba(0, 0, 0, 0.1);
+    -webkitapp-region: drag;
   }
 
   .el-tabs {
     height: 6rem;
     max-width: 100%;
+    -webkitapp-region: drag;
   }
 
   .article {
@@ -141,8 +166,8 @@
       width: 18rem;
     }
     img {
-      height: 11rem;
-      width: 18rem;
+      max-height: 11rem;
+      max-width: 18rem;
     }
   }
 

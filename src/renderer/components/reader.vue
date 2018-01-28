@@ -45,6 +45,7 @@
   @import '../styles/reader.css';
 
   #reader {
+    height: 100%;
   }
 
   .el-header {
@@ -55,6 +56,7 @@
     width: 100%;
     box-shadow: 2px 0 12px rgba(0, 0, 0, 0.1);
     background: #fff;
+    -webkit-app-region: drag;
     i {
       font-size: 2rem;
       cursor: pointer;
@@ -63,6 +65,7 @@
 
   .article {
     width: 80%;
+    height: 100%;
     margin: 2rem auto;
     text-align: left;
     font-weight: 400;
@@ -73,6 +76,14 @@
     }
     .publish-time {
       margin: 1rem 0;
+    }
+    .article-content {
+      width: 100%;
+      height: 100%;
+      iframe {
+        width: 100%;
+        height: 100%;
+      }
     }
   }
 </style>

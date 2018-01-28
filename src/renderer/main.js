@@ -10,7 +10,8 @@ import store from './store';
 if (!process.env.IS_WEB) Vue.use(require('vue-electron'));
 Vue.use(ElementUI);
 
-Vue.http = Vue.prototype.$axios = axios;
+Vue.prototype.$bus = new Vue();
+Vue.prototype.$axios = axios;
 Vue.config.productionTip = false;
 
 /* eslint-disable no-new */

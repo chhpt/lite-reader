@@ -1,10 +1,18 @@
 import { getAppList, getMenu, getArticleList, getArticle } from '../../api';
 
 const state = {
-  activeItem: '',
+  // 当前栏目
+  activeItem: {
+    title: '',
+    url: ''
+  },
+  // 应用名
   name: '',
+  // 应用劣币
   appList: [],
+  // 文章列表
   articleList: [],
+  // 栏目列表
   menu: [],
   article: {},
   loading: false
@@ -53,6 +61,15 @@ const actions = {
     const articleList = await getArticleList(
       payload.app, payload.page, payload.column, payload.url, payload.id
     );
+    commit('setArticleList', articleList);
+    return articleList;
+  },
+
+  async fetchMoreArticles({ commit, state }, payload) {
+    const moreArticles = await getArticleList(
+      payload.app, payload.page, payload.column, payload.url, payload.id
+    );
+    const articleList = state.articleList.concat(moreArticles);
     commit('setArticleList', articleList);
     return articleList;
   },

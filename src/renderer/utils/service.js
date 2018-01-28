@@ -26,10 +26,10 @@ service.interceptors.response.use(response => response.data, (error) => {
     // 请求超时
     store.commit('setLoading', false);
     return Promise.reject('请求超时，请重试');
-  } else {
+  } else if (error.message === 'Network Error') { // 网络错误
+    router.push('/error?status=Network_Error');
     // 其他在设置请求时触发的错误
-    router.push('/error');
-    throw new Error(error.message);
+    // throw new Error(error.message);
   }
   return Promise.reject(error.response);
 });

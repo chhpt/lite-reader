@@ -2,6 +2,9 @@
   <dictionary name="wuyiqing">
     <words>
       <w>axios</w>
+      <w>dragenter</w>
+      <w>dragleave</w>
+      <w>dragover</w>
       <w>eslint</w>
       <w>weixin</w>
     </words>

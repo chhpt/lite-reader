@@ -19,4 +19,8 @@
   };
 </script>
 <style lang="scss" scoped>
+  #c-main {
+    height: 100%;
+    overflow: hidden;
+  }
 </style>
