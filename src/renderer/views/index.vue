@@ -2,7 +2,7 @@
   <div id="root">
     <el-container>
       <el-aside id="aside" :style="sidebarStyle">
-        <Aside :close="close"></Aside>
+        <Aside :close.sync="close" @update:close="toggleSidebar"></Aside>
       </el-aside>
       <el-main id="main"
                v-loading="loading"
@@ -35,10 +35,6 @@
       ])
     },
     mounted() {
-      this.$bus.$on('toggle-sidebar', () => {
-        this.close = !this.close;
-        this.sidebarStyle.width = this.close ? '8rem' : '18rem';
-      });
       // split panel
       Split(['#aside', '#main'], {
         sizes: [25, 75],
@@ -54,6 +50,11 @@
           this.close = width < 180;
         }
       });
+    },
+    methods: {
+      toggleSidebar() {
+        this.sidebarStyle.width = this.close ? '8rem' : '18rem';
+      }
     },
     components: {
       Aside,

@@ -35,7 +35,8 @@
     },
     methods: {
       toggleSidebar() {
-        this.$bus.$emit('toggle-sidebar');
+        // 触发父组件的 sync 更新 prop 属性
+        this.$emit('update:close', !this.close);
       },
       async getAppMenu(id, type) {
         this.setLoading(true);
