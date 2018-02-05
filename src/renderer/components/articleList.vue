@@ -149,14 +149,12 @@
     background: #fff;
     box-shadow: 2px 2px 12px rgba(0, 0, 0, 0.1);
     /*窗口拖拽*/
-    -webkitapp-region: drag;
+    -webkit-app-region: drag;
   }
 
   .el-tabs {
     height: 6rem;
     max-width: 100%;
-    /*窗口拖拽*/
-    -webkitapp-region: drag;
   }
 
   .article {
