@@ -15,7 +15,7 @@
         <!--文章列表-->
         <el-card v-for="article in articleList" :body-style="cardStyle" :key="article.id" class="article">
           <div class="article-info">
-            <div class="article-title" @click="loadArticle(article.url)">
+            <div class="article-title" @click="loadArticle(article)">
               {{article.title}}
             </div>
             <div class="article-intro">
@@ -46,7 +46,7 @@
     data() {
       return {
         page: 1,
-        active: '',
+        active: undefined,
         cardStyle: {
           display: 'flex',
           justifyContent: 'space-between',
@@ -55,6 +55,9 @@
         },
         loading: false
       };
+    },
+    mounted() {
+      this.active = this.activeItem.title;
     },
     watch: {
       activeItem(newValue) {
@@ -73,6 +76,7 @@
       // 切换栏目
       handleTabClick(tab) {
         // 设置激活栏目
+        this.active = this.activeItem.title;
         this.setActiveItem(this.menu[tab.index]);
         const url = this.menu[tab.index].url;
         // 文章 id
@@ -85,11 +89,13 @@
         });
       },
       // 加载文章
-      loadArticle(url) {
+      loadArticle(article) {
         this.setLoading(true);
         this.fetchArticle({
-          url,
-          app: this.name
+          url: article.url,
+          app: this.name,
+          id: article.id,
+          category: article.category
         }).then(() => {
           this.setLoading(false);
         }).catch(() => {

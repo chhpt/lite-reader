@@ -25,12 +25,13 @@ export const getArticleList = (app, page, column, url, id) => service({
   }
 });
 
-export const getArticle = (app, url) => service({
+export const getArticle = (app, url, payload) => service({
   url: '/get_article',
   method: 'get',
   params: {
     app,
-    url
+    url,
+    payload
   }
 });
 export default 0;

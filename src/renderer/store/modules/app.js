@@ -76,7 +76,10 @@ const actions = {
 
   async fetchArticle({ commit }, payload) {
     commit('setArticle', {});
-    const article = await getArticle(payload.app, payload.url);
+    const article = await getArticle(payload.app, payload.url, {
+      id: payload.id,
+      category: payload.category
+    });
     commit('setArticle', article);
     return article;
   }

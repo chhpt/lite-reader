@@ -14,6 +14,9 @@
           </div>
           <div class="article-content" v-html="article.content">
           </div>
+          <div class="ending" v-if="article.title">
+            --------- End ---------
+          </div>
         </div>
       </el-main>
     </el-container>
@@ -30,7 +33,7 @@
     },
     methods: {
       back() {
-        this.$router.replace('/list');
+        this.$router.push('/list');
       }
     },
     computed: {
@@ -65,25 +68,22 @@
 
   .article {
     width: 80%;
-    height: 100%;
-    margin: 2rem auto;
+    margin: 4rem auto;
     text-align: left;
     font-weight: 400;
     line-height: 3.2rem;
     .article-title {
       font-size: 3rem;
       font-weight: 700;
+      margin: 3rem 0;
     }
     .publish-time {
       margin: 1rem 0;
     }
-    .article-content {
-      width: 100%;
-      height: 100%;
-      iframe {
-        width: 100%;
-        height: 100%;
-      }
+    .ending{
+      margin: 2rem 0;
+      display: flex;
+      justify-content: center;
     }
   }
 </style>
