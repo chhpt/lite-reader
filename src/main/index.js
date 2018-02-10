@@ -1,4 +1,4 @@
-import { app, BrowserWindow } from 'electron'; // eslint-disable-line
+import { app, BrowserWindow, ipcMain } from 'electron'; // eslint-disable-line
 
 /**
  * Set `__static` path to static files in production
@@ -10,13 +10,10 @@ if (process.env.NODE_ENV !== 'development') {
 
 let mainWindow;
 const winURL = process.env.NODE_ENV === 'development'
-  ? 'http://localhost:9080'
-  : `file://${__dirname}/index.html`;
+  ? 'http://localhost:9080/#'
+  : `file://${__dirname}/index.html#`;
 
-function createWindow() {
-  /**
-   * Initial window options
-   */
+const createWindow = () => {
   mainWindow = new BrowserWindow({
     height: 700,
     useContentSize: true,
@@ -30,7 +27,36 @@ function createWindow() {
   mainWindow.on('closed', () => {
     mainWindow = null;
   });
-}
+};
+
+ipcMain.on('new-window', (event, arg) => {
+  if (arg.action === 'open') {
+    const { url, app } = arg;
+    let newWindow = new BrowserWindow({
+      height: 700,
+      width: 900,
+      show: false,
+      backgroundColor: '#fff',
+      titleBarStyle: 'hidden'
+    });
+    newWindow.on('closed', () => {
+      newWindow = undefined;
+    });
+    newWindow.setMenu(null);
+    newWindow.loadURL(`${winURL}${url}`);
+    newWindow.once('ready-to-show', () => {
+      newWindow.show();
+      setTimeout(() => {
+        newWindow.webContents.send('app-detail', app);
+      }, 200);
+    });
+  }
+  // if (arg.action === 'close') {
+  //   newWindow.close();
+  //   newWindow = undefined;
+  // }
+});
+
 
 app.on('ready', createWindow);
 

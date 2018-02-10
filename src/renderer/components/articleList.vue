@@ -2,7 +2,7 @@
   <div id="article-list">
     <el-container>
       <!--栏目-->
-      <el-header height="60px">
+      <el-header height="50px">
         <el-tabs v-model="active"
                  @tab-click="handleTabClick"
                  tab-position="bottom">
@@ -22,7 +22,7 @@
               {{article.summary}}
             </div>
           </div>
-          <div class="left">
+          <div class="right">
             <div class="image-wrapper" v-if="article.image">
               <img :src="article.image" alt="文章图片" v-if="article.image">
             </div>
@@ -132,7 +132,7 @@
     }
   };
 </script>
-<style lang="scss" scoped>
+<style lang="scss">
   #article-list,
   .el-container {
     position: relative;
@@ -148,13 +148,14 @@
     width: 100%;
     background: #fff;
     box-shadow: 2px 2px 12px rgba(0, 0, 0, 0.1);
-    /*窗口拖拽*/
-    -webkit-app-region: drag;
   }
 
   .el-tabs {
-    height: 6rem;
+    height: 5rem;
     max-width: 100%;
+    .el-tabs__header{
+      margin-top: 0 !important;
+    }
   }
 
   .article {
@@ -162,7 +163,7 @@
     min-width: 50rem;
     max-width: 80rem;
     margin: 2rem auto;
-    .left {
+    .right {
       display: flex;
       align-items: center;
       margin-left: 3rem;

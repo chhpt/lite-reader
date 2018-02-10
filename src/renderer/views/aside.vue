@@ -1,9 +1,5 @@
 <template>
   <div id="c-aside">
-    <div class="close">
-      <i class="el-icon-d-arrow-left icon" v-if="!close" @click="toggleSidebar"></i>
-      <div class="closed" v-if="close" @click="toggleSidebar"></div>
-    </div>
     <div class="app-wrapper">
       <div v-for="app in appList" class="app">
         <img :src="app.icon" @click="getAppMenu(app.id, app.type)" alt="图标">
@@ -11,6 +7,11 @@
           {{app.name}}
         </span>
       </div>
+    </div>
+    <div class="add-app">
+      <i class="el-icon-plus icon" @click="loadAddWindow"></i>
+      <i class="el-icon-d-arrow-left icon right" v-if="!close" @click="toggleSidebar"></i>
+      <i class="el-icon-d-arrow-right icon" v-if="close" @click="toggleSidebar"></i>
     </div>
   </div>
 </template>
@@ -37,6 +38,9 @@
       toggleSidebar() {
         // 触发父组件的 sync 更新 prop 属性
         this.$emit('update:close', !this.close);
+      },
+      loadAddWindow() {
+        this.$router.push('/addapp');
       },
       async getAppMenu(id, type) {
         this.setLoading(true);
@@ -82,26 +86,33 @@
 </script>
 
 <style lang="scss" scoped>
-  .close {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    height: 4rem;
+  #c-aside {
+    height: 100%;
     padding-top: 2rem;
-    .icon {
-      float: right;
-      font-size: 2rem;
-      margin-right: 1rem;
-      cursor: pointer;
-    }
-    .closed {
-      float: right;
-      width: 1rem;
-      height: 1rem;
-      margin-right: 1rem;
-      background: #657b83;
-      border-radius: 0.5rem;
-    }
+  }
+
+  .app-wrapper {
+    height: calc(100% - 4rem);
+    overflow-y: scroll;
+    border-bottom: 1px solid #ccc;
+  }
+
+  .app-wrapper::-webkit-scrollbar {
+    background: transparent;
+    width: 0.2rem;
+  }
+
+  .app-wrapper:hover::-webkit-scrollbar {
+    background: #fff;
+  }
+
+  .app-wrapper:hover::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.1);
+  }
+
+  .app-wrapper:hover::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.2);
   }
 
   .app {
@@ -117,6 +128,19 @@
       cursor: pointer;
     }
     .app-name {
+      cursor: pointer;
+    }
+  }
+
+  .add-app {
+    height: 4rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    .icon {
+      font-size: 2rem;
+      font-weight: 700;
+      margin: 0 1rem;
       cursor: pointer;
     }
   }

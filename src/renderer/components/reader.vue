@@ -1,7 +1,7 @@
 <template>
   <div id="reader">
     <el-container>
-      <el-header height="60px">
+      <el-header height="50px">
         <i class="el-icon-arrow-left" @click="back"></i>
       </el-header>
       <el-main>
@@ -59,7 +59,6 @@
     width: 100%;
     box-shadow: 2px 0 12px rgba(0, 0, 0, 0.1);
     background: #fff;
-    -webkit-app-region: drag;
     i {
       font-size: 2rem;
       cursor: pointer;

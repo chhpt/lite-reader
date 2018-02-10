@@ -5,10 +5,12 @@ Vue.use(Router);
 
 // 懒加载
 const Index = r => require.ensure([], () => r(require('@/views/index')), 'index');
+const AddApp = r => require.ensure([], () => r(require('@/views/addapp')), 'addapp');
+const AppDetail = r => require.ensure([], () => r(require('@/views/window/appDetail')), 'appdetail');
+
 const ArticleList = r => require.ensure([], () => r(require('@/components/articleList')), 'articleList');
 const Reader = r => require.ensure([], () => r(require('@/components/reader')), 'reader');
 const Error = r => require.ensure([], () => r(require('@/components/error')), 'error');
-
 export default new Router({
   routes: [
     {
@@ -29,7 +31,16 @@ export default new Router({
           name: 'error',
           component: Error
         },
+        {
+          path: 'addapp',
+          name: 'addapp',
+          component: AddApp
+        }
       ]
+    },
+    {
+      path: '/app_detail',
+      component: AppDetail
     },
     {
       path: '*',

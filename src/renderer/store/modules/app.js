@@ -15,7 +15,8 @@ const state = {
   // 栏目列表
   menu: [],
   article: {},
-  loading: false
+  loading: false,
+  categories: []
 };
 
 const mutations = {
@@ -39,6 +40,9 @@ const mutations = {
   },
   setLoading(state, loading) {
     state.loading = loading;
+  },
+  setCategories(state, categories) {
+    state.categories = categories;
   }
 };
 

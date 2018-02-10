@@ -5,7 +5,9 @@ const getters = {
   articleList: state => state.app.articleList,
   article: state => state.app.article,
   activeItem: state => state.app.activeItem,
-  loading: state => state.app.loading
+  loading: state => state.app.loading,
+  categories: state => state.categories.categories,
+  appArticleList: state => state.detail.appArticleList
 };
 
 export default getters;

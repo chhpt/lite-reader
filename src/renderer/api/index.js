@@ -34,4 +34,18 @@ export const getArticle = (app, url, payload) => service({
     payload
   }
 });
+
+export const getCategories = () => service({
+  url: '/get_categories',
+  method: 'get'
+});
+
+export const getAppArticleList = (section, id) => service({
+  url: '/get_app_article_list',
+  method: 'get',
+  params: {
+    section,
+    id
+  }
+});
 export default 0;
