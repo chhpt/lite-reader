@@ -50,7 +50,7 @@
 </template>
 
 <script>
-  import { mapGetters, mapActions } from 'vuex';
+  import { mapGetters, mapMutations, mapActions } from 'vuex';
   import { ipcRenderer } from 'electron';
 
   export default {
@@ -60,12 +60,12 @@
         keywords: '',
         highlight: [],
         appList: [],
-        apps: []
       };
     },
     computed: {
       ...mapGetters([
-        'categories'
+        'categories',
+        'apps'
       ])
     },
     beforeMount() {
@@ -87,7 +87,7 @@
             });
           });
         });
-        this.apps = apps;
+        this.setApps(apps);
       }
     },
     filters: {
@@ -122,6 +122,9 @@
           url: '/app_detail'
         });
       },
+      ...mapMutations([
+        'setApps'
+      ]),
       ...mapActions([
         'fetchCategories'
       ])

@@ -70,7 +70,7 @@
             this.setLoading(false);
           });
         }
-        this.$router.push('list');
+        this.$router.push('/list');
       },
       ...mapMutations([
         'setActiveItem',
@@ -88,7 +88,7 @@
 <style lang="scss" scoped>
   #c-aside {
     height: 100%;
-    padding-top: 2rem;
+    /*padding-top: 2rem;*/
   }
 
   .app-wrapper {

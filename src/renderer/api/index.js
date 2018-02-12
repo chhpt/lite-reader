@@ -48,4 +48,14 @@ export const getAppArticleList = (section, id) => service({
     id
   }
 });
+
+export const getAppArticle = (url, section, hasRss) => service({
+  url: '/get_app_article',
+  method: 'get',
+  params: {
+    url,
+    section,
+    hasRss
+  }
+});
 export default 0;

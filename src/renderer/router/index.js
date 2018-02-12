@@ -10,7 +10,7 @@ const AppDetail = r => require.ensure([], () => r(require('@/views/window/appDet
 
 const ArticleList = r => require.ensure([], () => r(require('@/components/articleList')), 'articleList');
 const Reader = r => require.ensure([], () => r(require('@/components/reader')), 'reader');
-const Error = r => require.ensure([], () => r(require('@/components/error')), 'error');
+
 export default new Router({
   routes: [
     {
@@ -27,11 +27,6 @@ export default new Router({
           component: Reader
         },
         {
-          path: 'error',
-          name: 'error',
-          component: Error
-        },
-        {
           path: 'addapp',
           name: 'addapp',
           component: AddApp
@@ -41,6 +36,10 @@ export default new Router({
     {
       path: '/app_detail',
       component: AppDetail
+    },
+    {
+      path: '/app_reader',
+      component: Reader
     },
     {
       path: '*',

@@ -6,8 +6,11 @@ const getters = {
   article: state => state.app.article,
   activeItem: state => state.app.activeItem,
   loading: state => state.app.loading,
+  history: state => state.app.history,
   categories: state => state.categories.categories,
-  appArticleList: state => state.detail.appArticleList
+  appArticleList: state => state.detail.appArticleList,
+  app: state => state.detail.app,
+  apps: state => state.categories.apps
 };
 
 export default getters;

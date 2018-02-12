@@ -150,10 +150,25 @@
     box-shadow: 2px 2px 12px rgba(0, 0, 0, 0.1);
   }
 
+  .el-main {
+    &::-webkit-scrollbar {
+      background: transparent;
+      width: 0.4rem;
+    }
+    &:hover::-webkit-scrollbar-track {
+      -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.1);
+    }
+
+    &:hover::-webkit-scrollbar-thumb {
+      -webkit-box-shadow: inset 0 0 6px #6f7180;
+      border-radius: 0.2rem;
+    }
+  }
+
   .el-tabs {
     height: 5rem;
     max-width: 100%;
-    .el-tabs__header{
+    .el-tabs__header {
       margin-top: 0 !important;
     }
   }

@@ -1,10 +1,15 @@
 import { getAppArticleList } from '../../api';
 
 const state = {
-  appArticleList: []
+  app: {},
+  appArticleList: [],
+  article: ''
 };
 
 const mutations = {
+  setApp(state, app) {
+    state.app = app;
+  },
   setAppArticleList(state, articleList) {
     state.appArticleList = articleList;
   }

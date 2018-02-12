@@ -1,12 +1,16 @@
 import { getCategories } from '../../api';
 
 const state = {
-  categories: []
+  categories: [],
+  apps: []
 };
 
 const mutations = {
   setCategories(state, categories) {
     state.categories = categories;
+  },
+  setApps(state, apps) {
+    state.apps = apps;
   }
 };
 

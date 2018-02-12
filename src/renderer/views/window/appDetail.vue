@@ -1,32 +1,34 @@
 <template>
   <div id="app-detail">
-    <div class="app">
-      <img :src="app.imageURL" alt="图片">
-      <div class="app-info">
-        <div class="app-name">
-          {{app.title}}
-        </div>
-        <div class="app-description">
-          {{app.description}}
+    <div class="app-detail-inner">
+      <div class="app">
+        <img :src="app.imageURL" alt="图片">
+        <div class="app-info">
+          <div class="app-name">
+            {{app.title}}
+          </div>
+          <div class="app-description">
+            {{app.description}}
+          </div>
         </div>
       </div>
-    </div>
-    <div class="article-list"
-         v-loading="loading"
-         element-loading-text="精彩内容马上来到...">
-      <div class="article" v-for="article in appArticleList">
-        <div class="article-info">
-          <div class="article-title">
-            {{article.title}}
+      <div class="article-list"
+           v-loading="loading"
+           element-loading-text="精彩内容马上来到...">
+        <div class="article" v-for="article in appArticleList">
+          <div class="article-info">
+            <div class="article-title" @click="loadArticle(article)">
+              {{article.title}}
+            </div>
+            <div class="article-summary" v-html="article.summary">
+            </div>
+            <div class="time">
+              {{article.time | formatTime}}
+            </div>
           </div>
-          <div class="article-summary" v-html="article.summary">
+          <div class="image-wrapper" v-if="article.image">
+            <img :src="article.image" alt="图片">
           </div>
-          <div class="time">
-            {{article.time | formatTime}}
-          </div>
-        </div>
-        <div class="image-wrapper" v-if="article.image">
-          <img :src="article.image" alt="图片">
         </div>
       </div>
     </div>
@@ -35,24 +37,28 @@
 
 <script>
   import { ipcRenderer } from 'electron';
-  import { mapGetters, mapActions } from 'vuex';
+  import { mapGetters, mapMutations, mapActions } from 'vuex';
 
   export default {
     name: 'app-detail',
     data() {
       return {
-        app: {},
         loading: true
       };
     },
     computed: {
       ...mapGetters([
-        'appArticleList'
+        'appArticleList',
+        'app'
       ])
     },
     created() {
+      if (this.appArticleList.length) {
+        this.loading = false;
+        return;
+      }
       ipcRenderer.on('app-detail', (event, app) => {
-        this.app = app;
+        this.setApp(app);
         this.fetchAppArticleList({
           section: this.app.remoteid
         }).then(() => {
@@ -76,8 +82,22 @@
       }
     },
     methods: {
+      loadArticle(article) {
+        console.log(article);
+        this.fetchAppArticle({
+          url: article.url,
+          section: article.section,
+          hasRss: Boolean(article.rssText)
+        }).then(() => {
+          this.$router.push('/app_reader');
+        });
+      },
+      ...mapMutations([
+        'setApp'
+      ]),
       ...mapActions([
-        'fetchAppArticleList'
+        'fetchAppArticleList',
+        'fetchAppArticle'
       ])
     }
   };
@@ -88,6 +108,20 @@
     padding-top: 4rem;
     height: 100%;
     width: 100%;
+    overflow: auto;
+    &::-webkit-scrollbar {
+      background: #fff;
+      width: 0.4rem;
+    }
+
+    &:hover::-webkit-scrollbar-track {
+      -webkit-box-shadow: inset 0 0 6px #fff;
+    }
+
+    &:hover::-webkit-scrollbar-thumb {
+      -webkit-box-shadow: inset 0 0 6px #6f7180;
+      border-radius: 0.2rem;
+    }
   }
 
   .app {
@@ -125,6 +159,9 @@
       padding: 2rem;
       box-shadow: 2px 2px 2px 1px rgba(0, 0, 0, 0.1);
       border: 1px solid #f0f0f0;
+      .article-info {
+        width: calc(100% - 21rem);
+      }
       .article-title {
         font-size: 2.5rem;
         font-weight: 500;

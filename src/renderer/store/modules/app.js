@@ -1,4 +1,4 @@
-import { getAppList, getMenu, getArticleList, getArticle } from '../../api';
+import { getAppList, getMenu, getArticleList, getArticle, getAppArticle } from '../../api';
 
 const state = {
   // 当前栏目
@@ -16,7 +16,8 @@ const state = {
   menu: [],
   article: {},
   loading: false,
-  categories: []
+  categories: [],
+  history: []
 };
 
 const mutations = {
@@ -43,6 +44,9 @@ const mutations = {
   },
   setCategories(state, categories) {
     state.categories = categories;
+  },
+  addHistory(state, path) {
+    state.history.push(path);
   }
 };
 
@@ -84,6 +88,13 @@ const actions = {
       id: payload.id,
       category: payload.category
     });
+    commit('setArticle', article);
+    return article;
+  },
+
+  async fetchAppArticle({ commit }, payload) {
+    const { url, section, hasRss } = payload;
+    const article = await getAppArticle(url, section, hasRss);
     commit('setArticle', article);
     return article;
   }

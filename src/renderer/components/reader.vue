@@ -33,12 +33,14 @@
     },
     methods: {
       back() {
-        this.$router.push('/list');
+        const path = this.history.pop();
+        this.$router.push(path);
       }
     },
     computed: {
       ...mapGetters([
-        'article'
+        'article',
+        'history'
       ])
     }
   };
@@ -49,6 +51,11 @@
 
   #reader {
     height: 100%;
+    overflow: hidden;
+  }
+
+  .el-container {
+    height: 100%;
   }
 
   .el-header {
@@ -56,12 +63,28 @@
     top: 0;
     display: flex;
     align-items: center;
+    justify-content: flex-start;
     width: 100%;
     box-shadow: 2px 0 12px rgba(0, 0, 0, 0.1);
     background: #fff;
     i {
       font-size: 2rem;
       cursor: pointer;
+    }
+  }
+
+  .el-main {
+    &::-webkit-scrollbar {
+      background: transparent;
+      width: 0.4rem;
+    }
+    &:hover::-webkit-scrollbar-track {
+      -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.1);
+    }
+
+    &:hover::-webkit-scrollbar-thumb {
+      -webkit-box-shadow: inset 0 0 6px #6f7180;
+      border-radius: 0.2rem;
     }
   }
 
@@ -79,7 +102,7 @@
     .publish-time {
       margin: 1rem 0;
     }
-    .ending{
+    .ending {
       margin: 2rem 0;
       display: flex;
       justify-content: center;

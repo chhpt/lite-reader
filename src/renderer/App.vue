@@ -33,7 +33,7 @@
   body, html {
     width: 100%;
     height: 100%;
-    font-size: 62.5%;
+    font-size: 10px;
     font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', '微软雅黑', Arial, sans-serif;
     color: #303133;
     overflow-y: hidden;
@@ -43,21 +43,8 @@
     padding-top: 4rem;
     width: 100%;
     height: 100%;
-    font-size: 1.6rem;
+    font-size: 1.6rem !important;
     color: #303133;
-    overflow-y: auto;
-    &::-webkit-scrollbar {
-      background: #fff;
-      width: 0.3rem;
-    }
-
-    &:hover::-webkit-scrollbar-track {
-      -webkit-box-shadow: inset 0 0 6px #fff;
-    }
-
-    &:hover::-webkit-scrollbar-thumb {
-      -webkit-box-shadow: inset 0 0 6px #000;
-    }
   }
 
   .bar {
