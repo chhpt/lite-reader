@@ -12,10 +12,13 @@ LiteReader 桌面端聚合阅读 APP
 
 阅读文章
 
-![阅读文章](http://markdown-1252710547.coscd.myqcloud.com/1_folder/%E5%B1%8F%E5%B9%95%E5%BF%AB%E7%85%A7%202018-02-12%20%E4%B8%8B%E5%8D%8816.36.45%20%E4%B8%8B%E5%8D%88.png)
+![阅读文章](http://markdown-1252710547.coscd.myqcloud.com/1_folder/%E5%B1%8F%E5%B9%95%E5%BF%AB%E7%85%A7%202018-02-12%20%E4%B8%8B%E5%8D%8817.08.24%20%E4%B8%8B%E5%8D%88.png)
 
 ## TODO
 
+- 提供更多的技术网站的选项
+  - 掘金
+  - SegmentFault
 - 首页：提供多栏目应用的整合阅读服务，便于一次性阅读多个栏目
 - 话题：关于某一关键字的文章
 - 完善关注应用功能
