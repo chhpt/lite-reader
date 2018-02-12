@@ -83,7 +83,6 @@
     },
     methods: {
       loadArticle(article) {
-        console.log(article);
         this.fetchAppArticle({
           url: article.url,
           section: article.section,

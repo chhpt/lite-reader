@@ -9,6 +9,7 @@
           prefix-icon="el-icon-search"
           v-model="keywords"
           :fetch-suggestions="searchSuggest"
+          @select="handleSelect"
           :trigger-on-focus="false"
           clearable>
       </el-autocomplete>
@@ -82,8 +83,13 @@
         const apps = [];
         v.forEach((e) => {
           e.sections.forEach((app) => {
+            const { title, imageURL, description, remoteid } = app;
             apps.push({
-              value: app.title
+              value: title,
+              title,
+              description,
+              imageURL,
+              remoteid
             });
           });
         });
@@ -109,6 +115,14 @@
         } else {
           cb([{ value: '无搜索结果' }]);
         }
+      },
+      // 处理选中建议
+      handleSelect(item) {
+        ipcRenderer.send('new-window', {
+          app: item,
+          action: 'open',
+          url: '/app_detail'
+        });
       },
       loadAppList(i) {
         this.highlight.fill(false);

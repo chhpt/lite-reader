@@ -132,7 +132,7 @@
     }
   };
 </script>
-<style lang="scss">
+<style lang="scss" scoped>
   #article-list,
   .el-container {
     position: relative;

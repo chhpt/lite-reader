@@ -52,7 +52,7 @@ figure {
 
 img {
    max-height: 668px;
-   max-width: 100% !important;
+   max-width: 100%;
    outline: none;
 }
 
