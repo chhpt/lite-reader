@@ -7,6 +7,8 @@ Vue.use(Router);
 const Index = r => require.ensure([], () => r(require('@/views/index')), 'index');
 const AddApp = r => require.ensure([], () => r(require('@/views/addapp')), 'addapp');
 const AppDetail = r => require.ensure([], () => r(require('@/views/window/appDetail')), 'appdetail');
+const Manage = r => require.ensure([], () => r(require('@/views/manage')), 'setting');
+const Login = r => require.ensure([], () => r(require('@/views/login')), 'login');
 
 const ArticleList = r => require.ensure([], () => r(require('@/components/articleList')), 'articleList');
 const Reader = r => require.ensure([], () => r(require('@/components/reader')), 'reader');
@@ -40,6 +42,24 @@ export default new Router({
     {
       path: '/app_reader',
       component: Reader
+    },
+    {
+      path: '/manage',
+      component: Manage,
+      children: [
+        {
+          path: 'login',
+          component: Login
+        },
+        {
+          path: 'account',
+          component: Reader
+        }
+      ]
+    },
+    {
+      path: '/login',
+      component: Login
     },
     {
       path: '*',

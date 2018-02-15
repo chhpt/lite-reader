@@ -15,7 +15,7 @@
           <div class="article-content" v-html="article.content">
           </div>
           <div class="ending" v-if="article.title">
-            --------- End ---------
+            --------- END ---------
           </div>
         </div>
       </el-main>

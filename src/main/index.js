@@ -1,5 +1,5 @@
-import { app, BrowserWindow, ipcMain } from 'electron'; // eslint-disable-line
-
+import { app, BrowserWindow, ipcMain, Menu } from 'electron';
+// import db from '../dataStore';
 /**
  * Set `__static` path to static files in production
  * https://simulatedgreg.gitbooks.io/electron-vue/content/en/using-static-assets.html
@@ -9,17 +9,78 @@ if (process.env.NODE_ENV !== 'development') {
 }
 
 let mainWindow;
+let menu;
+// 主窗口
 const winURL = process.env.NODE_ENV === 'development'
   ? 'http://localhost:9080/#'
   : `file://${__dirname}/index.html#`;
+// 设置界面
+const settingWinURL = process.env.NODE_ENV === 'development'
+  ? 'http://localhost:9080/#manage'
+  : `file://${__dirname}/index.html#manage`;
 
+// 创建设置窗口
+const createSettingWindow = () => {
+  const options = {
+    height: 600,
+    width: 800,
+    center: true,
+    // resizable: false,
+    title: 'LiteReader',
+    titleBarStyle: 'hiddenInset',
+    parent: mainWindow
+  };
+  let settingWindow = new BrowserWindow(options);
+  settingWindow.loadURL(settingWinURL);
+  settingWindow.on('closed', () => {
+    settingWindow = null;
+  });
+};
+
+// 创建菜单
+const createMenu = () => {
+  const template = [
+    {
+      label: 'Edit',
+      submenu: [
+        { label: '关于 LiteReader', role: 'about' },
+        {
+          label: '设置',
+          click() {
+            createSettingWindow();
+          }
+        },
+        {
+          label: '退出 LiteReader',
+          accelerator: 'CmdOrCtrl+Q',
+          click() {
+            app.quit();
+          }
+        }
+      ]
+    },
+    {
+      label: '窗口',
+      role: 'window',
+      submenu: [
+        { label: '最小化', role: 'minimize' },
+        { label: '关闭', role: 'close' }
+      ]
+    }
+  ];
+  menu = Menu.buildFromTemplate(template);
+  Menu.setApplicationMenu(menu);
+};
+
+// 创建主窗口
 const createWindow = () => {
   mainWindow = new BrowserWindow({
     height: 700,
-    useContentSize: true,
     width: 1100,
+    title: 'LiteReader',
+    useContentSize: true,
     backgroundColor: '#fff',
-    titleBarStyle: 'hidden'
+    titleBarStyle: 'hiddenInset'
   });
 
   mainWindow.loadURL(winURL);
@@ -27,6 +88,7 @@ const createWindow = () => {
   mainWindow.on('closed', () => {
     mainWindow = null;
   });
+  createMenu();
 };
 
 ipcMain.on('new-window', (event, arg) => {
@@ -39,8 +101,9 @@ ipcMain.on('new-window', (event, arg) => {
       backgroundColor: '#fff',
       titleBarStyle: 'hidden'
     });
+
     newWindow.on('closed', () => {
-      newWindow = undefined;
+      newWindow = null;
     });
     newWindow.setMenu(null);
     newWindow.loadURL(`${winURL}${url}`);

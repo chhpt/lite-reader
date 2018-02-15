@@ -1,4 +1,6 @@
-import { getCategories } from '../../api';
+import API from '../../api';
+
+const { getCategories } = API;
 
 const state = {
   categories: [],

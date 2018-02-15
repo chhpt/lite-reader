@@ -1,4 +1,5 @@
-import { getAppList, getMenu, getArticleList, getArticle, getAppArticle } from '../../api';
+import API from '../../api';
+const { getAppList, getMenu, getArticleList, getArticle, getAppArticle } = API;
 
 const state = {
   // 当前栏目

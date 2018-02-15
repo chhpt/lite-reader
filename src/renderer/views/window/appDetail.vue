@@ -83,10 +83,9 @@
     },
     methods: {
       loadArticle(article) {
+        const { url, section, hasRss } = article;
         this.fetchAppArticle({
-          url: article.url,
-          section: article.section,
-          hasRss: Boolean(article.rssText)
+          url, section, hasRss
         }).then(() => {
           this.$router.push('/app_reader');
         });

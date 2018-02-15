@@ -16,8 +16,8 @@
 <script>
   import { mapGetters } from 'vuex';
   import Split from 'split.js';
-  import Aside from './aside';
-  import Main from './main';
+  import Aside from './layout/aside';
+  import Main from './layout/main';
 
   export default {
     name: 'index',

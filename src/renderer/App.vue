@@ -7,6 +7,9 @@
 </template>
 
 <script>
+  import Icon from '@/components/Icon';
+  import db from '../dataStore';
+
   export default {
     name: 'lite-reader',
     mounted() {
@@ -18,6 +21,15 @@
       // 获取 APP 列表
       this.$store.dispatch('fetchAppList').catch(() => {
       });
+      // 判断是否为首次打开 APP
+      const opened = db.get('app.opened').value();
+      // 没有打开过，则进入首页
+      if (!opened) {
+        this.$router.push('/login');
+      }
+    },
+    components: {
+      Icon
     }
   };
 </script>

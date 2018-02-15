@@ -1,6 +1,6 @@
 import axios from 'axios';
 import store from '../store';
-import router from '../router';
+// import router from '../router';
 
 const baseURL = 'http://localhost:3000';
 
@@ -9,13 +9,6 @@ const service = axios.create({
   baseURL,
   withCredentials: false,
   // timeout: 10000
-});
-
-// 记录浏览历史
-router.beforeEach((to, from, next) => {
-  const path = from.fullPath;
-  store.commit('addHistory', path);
-  next();
 });
 
 // 添加一个请求拦截器

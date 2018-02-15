@@ -1,4 +1,6 @@
-import { getAppArticleList } from '../../api';
+import API from '../../api';
+
+const { getAppArticleList } = API;
 
 const state = {
   app: {},
