@@ -3,9 +3,10 @@ import API from '../../api';
 const { getAppArticleList } = API;
 
 const state = {
+  // 查看的应用
   app: {},
-  appArticleList: [],
-  article: ''
+  // 应用的文章列表
+  appArticleList: []
 };
 
 const mutations = {
@@ -13,7 +14,7 @@ const mutations = {
     state.app = app;
   },
   setAppArticleList(state, articleList) {
-    state.appArticleList = articleList;
+    state.appArticleList = articleList || [];
   }
 };
 

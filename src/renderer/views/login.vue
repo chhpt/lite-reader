@@ -25,7 +25,7 @@
           <el-button type="text" @click="toggleFunction">{{registerText}}</el-button>
         </div>
         <div class="action">
-          <el-button type="primary" @click="">{{actionText}}</el-button>
+          <el-button type="primary" @click="handleAction">{{actionText}}</el-button>
         </div>
       </div>
       <div class="intro-text" v-if="firstOpen">
@@ -37,7 +37,9 @@
 </template>
 
 <script>
+  import { mapActions } from 'vuex';
   import db from '../../dataStore';
+  import passwordEncrypt from '../utils/encrypt';
 
   export default {
     name: 'login',
@@ -84,7 +86,51 @@
       },
       redirection() {
         this.$router.push('/');
-      }
+      },
+      async handleAction() {
+        // 注册
+        if (this.register) {
+          const { username, email, password } = this.userForm;
+          // 对密码进行加密
+          const cipher = passwordEncrypt(password);
+          const res = await this.userRegister({ username, email, password: cipher.toString() });
+          if (res.status) {
+            this.$message('注册成功！');
+          } else {
+            this.$message({
+              message: res.error,
+              type: 'error'
+            });
+          }
+        }
+        // 登录
+        if (!this.register) {
+          const { email, password } = this.userForm;
+          // 对密码进行加密
+          const cipher = passwordEncrypt(password);
+          const res = await this.userLogin({ email, password: cipher.toString() });
+          if (res.status) {
+            this.$message('登录成功！');
+            const { username, id } = res;
+            const account = {
+              email,
+              username,
+              id
+            };
+            db.set('account', account).write();
+            this.$router.push('/manage/account');
+          } else {
+            this.$message({
+              message: res.error,
+              type: 'error'
+            });
+          }
+        }
+      },
+      ...mapActions([
+        'userRegister',
+        'userLogin'
+      ])
     }
   };
 </script>

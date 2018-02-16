@@ -15,24 +15,26 @@ const state = {
   articleList: [],
   // 栏目列表
   menu: [],
+  // 当前浏览的文章
   article: {},
+  // 加载
   loading: false,
-  categories: [],
-  history: []
+  // 路由历史
+  routeHistory: []
 };
 
 const mutations = {
-  setAppList(state, appList) {
-    state.appList = appList;
+  setAPPList(state, appList) {
+    state.appList = appList || [];
   },
   setMenu(state, menu) {
-    state.menu = menu;
+    state.menu = menu || [];
   },
   setAppName(state, name) {
     state.name = name;
   },
   setArticleList(state, articleList) {
-    state.articleList = articleList;
+    state.articleList = articleList || [];
   },
   setArticle(state, article) {
     state.article = article;
@@ -43,18 +45,15 @@ const mutations = {
   setLoading(state, loading) {
     state.loading = loading;
   },
-  setCategories(state, categories) {
-    state.categories = categories;
-  },
   addHistory(state, path) {
-    state.history.push(path);
+    state.routeHistory.push(path);
   }
 };
 
 const actions = {
   async fetchAppList({ commit }) {
     const appList = await getAppList();
-    commit('setAppList', appList);
+    commit('setAPPList', appList);
     return appList;
   },
 

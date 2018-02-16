@@ -58,6 +58,10 @@
     width: 100%;
   }
 
+  .el-main {
+    padding: 0;
+  }
+
   .el-menu-item {
     display: flex;
     align-items: center;

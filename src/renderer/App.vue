@@ -7,7 +7,8 @@
 </template>
 
 <script>
-  import Icon from '@/components/Icon';
+  import { shell } from 'electron';
+  import Icon from './components/Icon';
   import db from '../dataStore';
 
   export default {
@@ -27,6 +28,13 @@
       if (!opened) {
         this.$router.push('/login');
       }
+      // 在外部浏览器中打开链接
+      document.addEventListener('click', (event) => {
+        if (event.target.tagName === 'A' && event.target.href.startsWith('http')) {
+          event.preventDefault();
+          shell.openExternal(event.target.href);
+        }
+      });
     },
     components: {
       Icon
@@ -35,21 +43,7 @@
 </script>
 
 <style lang='scss'>
-  * {
-    padding: 0;
-    margin: 0;
-    box-sizing: border-box;
-    text-decoration: none;
-  }
-
-  body, html {
-    width: 100%;
-    height: 100%;
-    font-size: 10px;
-    font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', '微软雅黑', Arial, sans-serif;
-    color: #303133;
-    overflow-y: hidden;
-  }
+  @import "./styles/common.scss";
 
   #app {
     padding-top: 4rem;

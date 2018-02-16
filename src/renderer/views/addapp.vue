@@ -27,7 +27,7 @@
         </el-aside>
         <el-main>
           <div class="app-list">
-            <div class="app" v-for="app in appList">
+            <div class="app" v-for="(app, index) in appList">
               <img :src="app.imageURL" alt="图标">
               <div class="app-info">
                 <span @click="loadAppDetail(app)" class="app-name">
@@ -38,8 +38,11 @@
                 </div>
               </div>
               <div class="follow">
-                <el-button :loading="false">
-                  关注
+                <el-button v-if="!app.followed" @click="handleFollowAPP(app)">关注</el-button>
+                <el-button type="primary"
+                           icon="el-icon-check"
+                           v-if="app.followed"
+                           @click="handleCancelFollow(app)">
                 </el-button>
               </div>
             </div>
@@ -53,6 +56,8 @@
 <script>
   import { mapGetters, mapMutations, mapActions } from 'vuex';
   import { ipcRenderer } from 'electron';
+  import db from '../../dataStore';
+  import API from '../api';
 
   export default {
     name: 'add-app',
@@ -70,13 +75,22 @@
       ])
     },
     beforeMount() {
-      this.fetchCategories().then(() => {
+      // 临时获取缓存目录
+      const categories = db.get('app.categories').value();
+      this.setCategories(categories);
+      // 获取远程的目录
+      this.fetchCategories().then((res) => {
+        // 将远程目录存储到本地
+        db.set('app.categories', res).write();
+        // 以分类的长度建立高亮数组
         const len = this.categories.length;
         if (len) {
           this.highlight = new Array(len);
           this.highlight.fill(false);
         }
       });
+      // 默认加载第一个分类
+      this.loadAppList(0);
     },
     watch: {
       categories(v) {
@@ -93,7 +107,7 @@
             });
           });
         });
-        this.setApps(apps);
+        this.setAPPs(apps);
       }
     },
     filters: {
@@ -125,9 +139,80 @@
         });
       },
       loadAppList(i) {
+        this.appList = [];
         this.highlight.fill(false);
         this.highlight[i] = true;
-        this.appList = this.categories[i].sections;
+        const follows = db.get('user.follows').value();
+        // 获取关注的应用
+        if (follows) {
+          this.appList = this.categories[i].sections.map((e) => {
+            const app = follows.find(v => v.title === e.title);
+            e.followed = Boolean(app) && !app.delete;
+            return e;
+          });
+        } else {
+          this.appList = this.categories[i].sections;
+        }
+      },
+      async handleFollowAPP(app) {
+        const { followAPP } = API;
+        const account = db.get('account').value();
+        // 没有登录，不能关注应用
+        if (!account) {
+          this.$message({
+            message: '你尚未登录，不能进行操作',
+            type: 'error'
+          });
+          return;
+        }
+        // 关注应用
+        const res = await
+          followAPP(app);
+        if (res.status) {
+          this.$message('关注成功');
+          db.get('user.follows').push(app).write();
+          // 获取应用的序号
+          const index = this.appList.findIndex(e => e.title === app.title);
+          const followedAPP = this.appList[index];
+          followedAPP.followed = true;
+          // 通过替换 appList 中的元素触发 DOM 更新
+          this.appList.splice(index, 1, followedAPP);
+        } else {
+          this.$message({
+            message: res.error,
+            type: 'error'
+          });
+        }
+      },
+      async handleCancelFollow(app) {
+        const { cancelFollowAPP } = API;
+        const account = db.get('account').value();
+        // 没有登录，不能取消关注应用
+        if (!account) {
+          this.$message({
+            message: '你尚未登录，不能进行操作',
+            type: 'error'
+          });
+          return;
+        }
+        // 取消关注
+        const res = await
+          cancelFollowAPP(app);
+        if (res.status) {
+          this.$message('取消关注成功');
+          db.get('user.follows').find({ title: app.title }).assign({ delete: 1 }).write();
+          // 获取应用的序号
+          const index = this.appList.findIndex(e => e.title === app.title);
+          const followedAPP = this.appList[index];
+          followedAPP.followed = false;
+          // 通过替换 appList 中的元素触发 DOM 更新
+          this.appList.splice(index, 1, followedAPP);
+        } else {
+          this.$message({
+            type: 'error',
+            message: res.error
+          });
+        }
       },
       loadAppDetail(app) {
         ipcRenderer.send('new-window', {
@@ -137,10 +222,12 @@
         });
       },
       ...mapMutations([
-        'setApps'
+        'setAPPs',
+        'setCategories'
       ]),
       ...mapActions([
-        'fetchCategories'
+        'fetchCategories',
+        'userFollowAPP'
       ])
     }
   };
@@ -222,6 +309,7 @@
       border-radius: 1.25rem;
     }
     .app-info {
+      flex: 1 1 auto;
       width: calc(100% - 14rem);
       margin-left: 2rem;
       .app-name {

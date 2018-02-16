@@ -9,10 +9,10 @@ const state = {
 
 const mutations = {
   setCategories(state, categories) {
-    state.categories = categories;
+    state.categories = categories || [];
   },
-  setApps(state, apps) {
-    state.apps = apps;
+  setAPPs(state, apps) {
+    state.apps = apps || [];
   }
 };
 

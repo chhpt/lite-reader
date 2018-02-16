@@ -33,14 +33,14 @@
     },
     methods: {
       back() {
-        const path = this.history.pop();
+        const path = this.routeHistory.pop();
         this.$router.push(path);
       }
     },
     computed: {
       ...mapGetters([
         'article',
-        'history'
+        'routeHistory'
       ])
     }
   };
@@ -55,6 +55,7 @@
   }
 
   .el-container {
+    line-height: 3.5rem;
     height: 100%;
   }
 
@@ -93,7 +94,6 @@
     margin: 4rem auto;
     text-align: left;
     font-weight: 400;
-    line-height: 3.2rem;
     .article-title {
       font-size: 3rem;
       font-weight: 700;

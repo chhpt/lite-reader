@@ -7,7 +7,7 @@ const baseURL = 'http://localhost:3000';
 // 创建实例
 const service = axios.create({
   baseURL,
-  withCredentials: false,
+  withCredentials: true,
   // timeout: 10000
 });
 
@@ -20,15 +20,27 @@ service.interceptors.response.use(response => response.data, (error) => {
   if (error.response) {
     store.commit('setErrorInfo', error.response);
     if (error.response.status) {
-      // router.push(`/error?status=${error.response.status}`);
+      const { status } = error.response;
+      if (status === 404) {
+        new Notification('警告', {
+          body: '请求错误'
+        });
+      }
+      if (status === 500) {
+        new Notification('警告', {
+          body: '服务器异常'
+        });
+      }
     }
   } else if (error.message.indexOf('timeout') > -1) {
     // 请求超时
     store.commit('setLoading', false);
     return Promise.reject('请求超时，请重试');
-  } else if (error.message === 'Network Error') { // 网络错误
-    // router.push('/error?status=Network_Error');
-    // 其他在设置请求时触发的错误
+  } else if (error.message === 'Network Error') {
+    // 网络错误
+    new Notification('警告', {
+      body: '你的网络存在异常，请连接网络后重试！'
+    });
     throw new Error(error.message);
   }
   return Promise.reject(error.response);

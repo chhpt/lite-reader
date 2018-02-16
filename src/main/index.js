@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, Menu } from 'electron';
+import { app, BrowserWindow, ipcMain, Menu, webContents } from 'electron';
 // import db from '../dataStore';
 /**
  * Set `__static` path to static files in production
@@ -41,14 +41,17 @@ const createSettingWindow = () => {
 const createMenu = () => {
   const template = [
     {
-      label: 'Edit',
+      label: 'LiteReader',
       submenu: [
         { label: '关于 LiteReader', role: 'about' },
         {
-          label: '设置',
+          label: '账户与设置',
           click() {
             createSettingWindow();
           }
+        },
+        {
+          label: '意见反馈'
         },
         {
           label: '退出 LiteReader',
@@ -57,6 +60,20 @@ const createMenu = () => {
             app.quit();
           }
         }
+      ]
+    },
+    {
+      label: '编辑',
+      submenu: [
+        { role: 'undo' },
+        { role: 'redo' },
+        { type: 'separator' },
+        { role: 'cut' },
+        { role: 'copy' },
+        { role: 'paste' },
+        { role: 'pasteandmatchstyle' },
+        { role: 'delete' },
+        { role: 'selectall' }
       ]
     },
     {

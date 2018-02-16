@@ -11,6 +11,12 @@
             {{app.description}}
           </div>
         </div>
+        <div class="follow">
+          <el-button size="small" @click="handleFollowAPP(app)" v-if="!app.followed">关注</el-button>
+          <el-button size="small" @click="handleCancelFollow(app)" type="primary" icon="el-icon-check"
+                     v-if="app.followed">取消关注
+          </el-button>
+        </div>
       </div>
       <div class="article-list"
            v-loading="loading"
@@ -30,6 +36,12 @@
             <img :src="article.image" alt="图片">
           </div>
         </div>
+        <!--有文章时才显示加载更多-->
+        <div class="load-more" v-if="appArticleList.length">
+          <el-button plain :loading="loadingMore" @click="loadMoreArticles">
+            加载更多
+          </el-button>
+        </div>
       </div>
     </div>
   </div>
@@ -38,12 +50,15 @@
 <script>
   import { ipcRenderer } from 'electron';
   import { mapGetters, mapMutations, mapActions } from 'vuex';
+  import db from '../../../dataStore';
+  import API from '../../api';
 
   export default {
     name: 'app-detail',
     data() {
       return {
-        loading: true
+        loading: true,
+        loadingMore: false
       };
     },
     computed: {
@@ -59,6 +74,9 @@
       }
       ipcRenderer.on('app-detail', (event, app) => {
         this.setApp(app);
+        // 根据本地数据判断是否关注了应用
+        this.followed = db.get('user.follows').find({ title: this.app.title }).value();
+        // 获取
         this.fetchAppArticleList({
           section: this.app.remoteid
         }).then(() => {
@@ -82,6 +100,7 @@
       }
     },
     methods: {
+      // 点击文章加载文章内容
       loadArticle(article) {
         const { url, section, hasRss } = article;
         this.fetchAppArticle({
@@ -89,6 +108,65 @@
         }).then(() => {
           this.$router.push('/app_reader');
         });
+      },
+      // 加载更多文章
+      async loadMoreArticles() {
+        this.loadingMore = true;
+        // 最后一篇文章的 id
+        const { id } = this.appArticleList[this.appArticleList.length - 1];
+        await this.fetchAppArticleList({
+          id,
+          section: this.app.remoteid
+        });
+        this.loadingMore = false;
+      },
+      async handleFollowAPP(app) {
+        const { followAPP } = API;
+        const account = db.get('account').value();
+        // 没有登录，不能关注应用
+        if (!account) {
+          this.$message({
+            message: '你尚未登录，不能进行操作',
+            type: 'error'
+          });
+          return;
+        }
+        // 关注应用
+        const res = await followAPP(app);
+        if (res.status) {
+          this.$message('关注成功');
+          this.app.followed = true;
+          db.get('user.follows').push(app).write();
+        } else {
+          this.$message({
+            message: res.error,
+            type: 'error'
+          });
+        }
+      },
+      async handleCancelFollow(app) {
+        const { cancelFollowAPP } = API;
+        const account = db.get('account').value();
+        // 没有登录，不能取消关注应用
+        if (!account) {
+          this.$message({
+            message: '你尚未登录，不能进行操作',
+            type: 'error'
+          });
+          return;
+        }
+        // 取消关注
+        const res = await cancelFollowAPP(app);
+        if (res.status) {
+          this.$message('取消关注成功');
+          this.app.followed = false;
+          db.get('user.follows').find({ title: app.title }).assign({ delete: 1 }).write();
+        } else {
+          this.$message({
+            type: 'error',
+            message: res.error
+          });
+        }
       },
       ...mapMutations([
         'setApp'
@@ -133,6 +211,7 @@
       border-radius: 1.5rem;
     }
     .app-info {
+      flex: 1 1 auto;
       margin-left: 2rem;
       .app-name {
         font-size: 2rem;
@@ -141,6 +220,9 @@
       .app-description {
         margin-top: 1rem;
       }
+    }
+    .follow {
+      align-self: center;
     }
   }
 
@@ -169,7 +251,8 @@
       .article-summary {
         margin-top: 1.5rem;
         max-height: 18rem;
-        overflow-y: hidden;
+        overflow: hidden;
+        line-height: 3rem;
         color: #606266;
       }
       .time {
@@ -186,5 +269,11 @@
         width: 18rem;
       }
     }
+  }
+
+  .load-more {
+    display: flex;
+    justify-content: center;
+    margin: 4rem 0;
   }
 </style>
