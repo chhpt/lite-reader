@@ -117,7 +117,7 @@
               username,
               id
             };
-            db.set('account', account).write();
+            db.set('user.account', account).write();
             this.$router.push('/manage/account');
           } else {
             this.$message({

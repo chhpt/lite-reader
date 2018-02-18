@@ -122,7 +122,7 @@
       },
       async handleFollowAPP(app) {
         const { followAPP } = API;
-        const account = db.get('account').value();
+        const account = db.get('user.account').value();
         // 没有登录，不能关注应用
         if (!account) {
           this.$message({
@@ -146,7 +146,7 @@
       },
       async handleCancelFollow(app) {
         const { cancelFollowAPP } = API;
-        const account = db.get('account').value();
+        const account = db.get('user.account').value();
         // 没有登录，不能取消关注应用
         if (!account) {
           this.$message({

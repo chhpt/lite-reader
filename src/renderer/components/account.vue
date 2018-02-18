@@ -12,8 +12,11 @@
           {{account.email}}
         </div>
       </div>
-      <div class="setting">
+      <div class="setting" @click="editSetting">
         <Icon name="shezhi1"></Icon>
+      </div>
+      <div class="exit" @click="accountDialogVisible = true">
+        <Icon name="tuichu"></Icon>
       </div>
     </div>
     <div class="actions">
@@ -38,11 +41,56 @@
         </el-card>
       </div>
     </div>
+    <!--退出账号-->
+    <el-dialog
+        title="警告"
+        :visible.sync="accountDialogVisible"
+        width="30%">
+      <span>确认退出账号吗？</span>
+      <span slot="footer" class="dialog-footer">
+        <el-button type="text" @click="accountDialogVisible = false">取 消</el-button>
+        <el-button type="text" @click="handleLogout">确 定</el-button>
+      </span>
+    </el-dialog>
+    <!--个人账号信息设置-->
+    <el-dialog title="个人信息设置"
+               :visible.sync="settingDialogVisible"
+               :modal="false"
+               fullscreen
+               class="setting-dialog">
+      <!--表单-->
+      <el-form :model="editAccount"
+               :rules="checkRules"
+               ref="userForm"
+               label-width="50px"
+               class="user-form">
+        <el-form-item label="昵称" prop="username">
+          <el-input v-model="editAccount.username"
+                    placeholder="请输入你的昵称"
+                    @focus="usernameEditing = true"
+                    clearable
+                    ref="username"></el-input>
+          <el-button type="text" icon="el-icon-edit" @click="edit('username')" v-if="!usernameEditing">编 辑</el-button>
+          <el-button type="text" @click="saveSetting('username')" v-show="usernameEditing">保 存</el-button>
+          <el-button type="text" @click="cancelEdit('username')" v-show="usernameEditing">取 消</el-button>
+        </el-form-item>
+        <el-form-item label="邮箱" prop="email">
+          <el-input v-model="editAccount.email"
+                    placeholder="请输入你的邮箱"
+                    @focus="emailEditing = true"
+                    clearable
+                    ref="email"></el-input>
+          <el-button type="text" icon="el-icon-edit" @click="edit('email')" v-if="!emailEditing">编 辑</el-button>
+          <el-button type="text" @click="saveSetting('email')" v-show="emailEditing">保 存</el-button>
+          <el-button type="text" @click="cancelEdit('email')" v-show="emailEditing">取 消</el-button>
+        </el-form-item>
+      </el-form>
+    </el-dialog>
   </div>
 </template>
 
 <script>
-  import Icon from '@/components/Icon';
+  import Icon from './Icon';
   import db from '../../dataStore';
   import API from '../api';
 
@@ -53,11 +101,28 @@
     data() {
       return {
         activeName: 'collection',
-        list: []
+        list: [],
+        usernameEditing: false,
+        emailEditing: false,
+        settingDialogVisible: false,
+        accountDialogVisible: false,
+        editAccount: {
+          username: '',
+          email: ''
+        },
+        checkRules: {
+          email: [
+            { required: true, message: '请输入邮箱', trigger: 'blur' },
+            { type: 'email', message: '请输入正确的邮箱地址', trigger: 'blur' }
+          ],
+          username: [
+            { required: true, message: '请输入你的用户名', trigger: 'blur' }
+          ],
+        },
       };
     },
     computed: {
-      account: () => db.get('account').value()
+      account: () => db.get('user.account').value()
     },
     methods: {
       handleClick(tab) {
@@ -76,11 +141,32 @@
           default:
         }
       },
+      handleLogout() {
+        // 情况本地账户信息
+        db.set('user.account', {}).write();
+        db.set('user.follows', {}).write();
+      },
+      // 编辑个人信息（点击设置图标）
+      editSetting() {
+        this.settingDialogVisible = true;
+        this.editAccount = Object.assign({}, this.account);
+      },
+      edit(data) {
+        this.$refs[data].focus();
+        this[`${data}Editing`] = true;
+      },
+      cancelEdit(data) {
+        this.editAccount[data] = this.account[data];
+        this[`${data}Editing`] = false;
+      },
+      saveSetting(data) {
+        // 更新本地的数据
+        db.set(`account.${data}`, this.editAccount[data]).write();
+        this.settingDialogVisible = false;
+      },
       getCollection() {
-        console.log('c');
       },
       getBrowserHistory() {
-        console.log('h');
       },
       async getFollowAPPs() {
         const res = await getFollowAPPs();
@@ -96,8 +182,8 @@
   };
 </script>
 
-<style lang="scss" scoped>
-  @import "../styles/common.scss";
+<style lang="scss">
+  @import "../styles/common";
 
   #account {
     width: 100%;
@@ -136,8 +222,10 @@
       }
     }
 
-    .setting {
+    .setting,
+    .exit {
       margin-right: 2rem;
+      height: 2rem;
       flex: 0 0 auto;
       .icon {
         cursor: pointer;
@@ -156,7 +244,7 @@
   .list {
     height: calc(100% - 5rem);
     overflow: scroll;
-    @include scroll;
+    @include normalScrollbar;
     .card {
       margin: 1rem 0;
       .el-card__body {
@@ -179,6 +267,32 @@
       }
       .description {
         margin-top: 0.8rem;
+      }
+    }
+  }
+
+  // 设置对话框
+  .setting-dialog {
+    top: 4rem;
+    height: calc(100% - 4rem) !important;
+  }
+
+  .user-form {
+    /*padding: 2rem;*/
+    /*box-shadow: 1px 2px 4px 2px rgba(0, 0, 0, 0.1);*/
+    width: 80%;
+    .el-form-item {
+      margin-bottom: 1rem;
+    }
+    .el-form-item__content {
+      display: flex;
+    }
+    .el-input {
+      min-width: 20rem;
+      input {
+        border: 1px solid #fff !important;
+        outline: none;
+        padding: 0;
       }
     }
   }

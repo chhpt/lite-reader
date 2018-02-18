@@ -13,7 +13,7 @@ router.beforeEach((to, from, next) => {
 // 验证登录信息
 router.beforeEach((to, from, next) => {
   if (to.path === '/manage/account') {
-    const account = db.get('account').value();
+    const account = db.get('user.account').value();
     if (account) {
       next();
     } else {
