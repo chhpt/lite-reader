@@ -110,14 +110,10 @@
           const cipher = passwordEncrypt(password);
           const res = await this.userLogin({ email, password: cipher.toString() });
           if (res.status) {
-            this.$message('登录成功！');
-            const { username, id } = res;
-            const account = {
-              email,
-              username,
-              id
-            };
-            db.set('user.account', account).write();
+            this.$message({
+              message: '登录成功！',
+              duration: '1000'
+            });
             this.$router.push('/manage/account');
           } else {
             this.$message({

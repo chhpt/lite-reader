@@ -14,10 +14,11 @@
 </template>
 
 <script>
-  import { mapGetters } from 'vuex';
+  import { mapGetters, mapActions } from 'vuex';
   import Split from 'split.js';
   import Aside from './layout/aside';
   import Main from './layout/main';
+  import db from '../../dataStore';
 
   export default {
     name: 'index',
@@ -50,11 +51,32 @@
           this.close = width < 180;
         }
       });
+      // 账户存在，获取用户的应用列表
+      const account = db.get('user.account').value();
+      if (account) {
+        this.fetchFollowAPPs().then((res) => {
+          if (res.status) {
+            const { apps } = res;
+            db.set('user.follows', apps).write();
+          } else {
+            this.$message({
+              type: 'error',
+              message: res.error
+            });
+          }
+        });
+      } else {
+        // 清空关注应用信息
+        db.set('user.follows', []).write();
+      }
     },
     methods: {
       toggleSidebar() {
         this.sidebarStyle.width = this.close ? '8rem' : '18rem';
-      }
+      },
+      ...mapActions([
+        'fetchFollowAPPs'
+      ])
     },
     components: {
       Aside,

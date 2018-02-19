@@ -57,7 +57,6 @@
   import { mapGetters, mapMutations, mapActions } from 'vuex';
   import { ipcRenderer } from 'electron';
   import db from '../../dataStore';
-  import API from '../api';
 
   export default {
     name: 'add-app',
@@ -71,7 +70,9 @@
     computed: {
       ...mapGetters([
         'categories',
-        'apps'
+        'apps',
+        'account',
+        'followAPPs'
       ])
     },
     beforeMount() {
@@ -87,6 +88,8 @@
         if (len) {
           this.highlight = new Array(len);
           this.highlight.fill(false);
+          // 默认加载第一个分类
+          this.highlight[0] = true;
         }
       });
       // 默认加载第一个分类
@@ -142,11 +145,10 @@
         this.appList = [];
         this.highlight.fill(false);
         this.highlight[i] = true;
-        const follows = db.get('user.follows').value();
         // 获取关注的应用
-        if (follows) {
+        if (this.followAPPs.length) {
           this.appList = this.categories[i].sections.map((e) => {
-            const app = follows.find(v => v.title === e.title);
+            const app = this.followAPPs.find(v => v.title === e.title);
             e.followed = Boolean(app) && !app.delete;
             return e;
           });
@@ -155,10 +157,8 @@
         }
       },
       async handleFollowAPP(app) {
-        const { followAPP } = API;
-        const account = db.get('user.account').value();
         // 没有登录，不能关注应用
-        if (!account) {
+        if (!this.account) {
           this.$message({
             message: '你尚未登录，不能进行操作',
             type: 'error'
@@ -166,11 +166,9 @@
           return;
         }
         // 关注应用
-        const res = await
-          followAPP(app);
+        const res = await this.userFollowAPP({ app });
         if (res.status) {
           this.$message('关注成功');
-          db.get('user.follows').push(app).write();
           // 获取应用的序号
           const index = this.appList.findIndex(e => e.title === app.title);
           const followedAPP = this.appList[index];
@@ -185,10 +183,8 @@
         }
       },
       async handleCancelFollow(app) {
-        const { cancelFollowAPP } = API;
-        const account = db.get('user.account').value();
         // 没有登录，不能取消关注应用
-        if (!account) {
+        if (!this.account) {
           this.$message({
             message: '你尚未登录，不能进行操作',
             type: 'error'
@@ -196,11 +192,9 @@
           return;
         }
         // 取消关注
-        const res = await
-          cancelFollowAPP(app);
+        const res = await this.cancelUserFollowAPP({ app });
         if (res.status) {
           this.$message('取消关注成功');
-          db.get('user.follows').find({ title: app.title }).assign({ delete: 1 }).write();
           // 获取应用的序号
           const index = this.appList.findIndex(e => e.title === app.title);
           const followedAPP = this.appList[index];
@@ -227,7 +221,8 @@
       ]),
       ...mapActions([
         'fetchCategories',
-        'userFollowAPP'
+        'userFollowAPP',
+        'cancelUserFollowAPP'
       ])
     }
   };

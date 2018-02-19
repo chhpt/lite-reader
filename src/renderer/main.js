@@ -2,7 +2,7 @@ import Vue from 'vue';
 import axios from 'axios';
 import ElementUI from 'element-ui';
 // import 'element-ui/lib/themes-chalk/index.css';
-import './theme/gray/index.css';
+import './themes/gray/index.css';
 
 import App from './App';
 import router from './router';

@@ -19,6 +19,11 @@ const login = (email, password) => service({
   }
 });
 
+const logout = () => service({
+  url: '/user/logout',
+  method: 'POST'
+});
+
 const getFollowAPPs = () => service({
   url: '/auth/get_follow_apps',
   method: 'GET'
@@ -40,10 +45,21 @@ const cancelFollowAPP = (app) => service({
   }
 });
 
+const updateUserInfo = (username, email) => service({
+  url: '/auth/update_user_info',
+  method: 'POST',
+  data: {
+    username,
+    email
+  }
+});
+
 export default {
   register,
   login,
+  logout,
   followAPP,
   cancelFollowAPP,
-  getFollowAPPs
+  getFollowAPPs,
+  updateUserInfo,
 };

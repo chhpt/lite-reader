@@ -1,5 +1,5 @@
 import API from '../../api';
-const { getAppList, getMenu, getArticleList, getArticle, getAppArticle } = API;
+const { getMenu, getArticleList, getArticle, getAppArticle } = API;
 
 const state = {
   // 当前栏目
@@ -9,8 +9,6 @@ const state = {
   },
   // 应用名
   name: '',
-  // 应用劣币
-  appList: [],
   // 文章列表
   articleList: [],
   // 栏目列表
@@ -24,9 +22,6 @@ const state = {
 };
 
 const mutations = {
-  setAPPList(state, appList) {
-    state.appList = appList || [];
-  },
   setMenu(state, menu) {
     state.menu = menu || [];
   },
@@ -51,12 +46,6 @@ const mutations = {
 };
 
 const actions = {
-  async fetchAppList({ commit }) {
-    const appList = await getAppList();
-    commit('setAPPList', appList);
-    return appList;
-  },
-
   async fetchMenu({ commit }, app) {
     commit('setMenu', []);
     const menu = await getMenu(app);

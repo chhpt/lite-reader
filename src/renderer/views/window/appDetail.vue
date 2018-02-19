@@ -51,7 +51,6 @@
   import { ipcRenderer } from 'electron';
   import { mapGetters, mapMutations, mapActions } from 'vuex';
   import db from '../../../dataStore';
-  import API from '../../api';
 
   export default {
     name: 'app-detail',
@@ -64,7 +63,8 @@
     computed: {
       ...mapGetters([
         'appArticleList',
-        'app'
+        'app',
+        'account'
       ])
     },
     created() {
@@ -100,6 +100,12 @@
       }
     },
     methods: {
+      // 向主进程同步关注应用
+      sendFollowAPPs(apps) {
+        ipcRenderer.send('follow-action', {
+          apps
+        });
+      },
       // 点击文章加载文章内容
       loadArticle(article) {
         const { url, section, hasRss } = article;
@@ -121,10 +127,8 @@
         this.loadingMore = false;
       },
       async handleFollowAPP(app) {
-        const { followAPP } = API;
-        const account = db.get('user.account').value();
         // 没有登录，不能关注应用
-        if (!account) {
+        if (!this.account) {
           this.$message({
             message: '你尚未登录，不能进行操作',
             type: 'error'
@@ -132,11 +136,11 @@
           return;
         }
         // 关注应用
-        const res = await followAPP(app);
+        const res = await this.userFollowAPP({ app });
         if (res.status) {
           this.$message('关注成功');
           this.app.followed = true;
-          db.get('user.follows').push(app).write();
+          this.sendFollowAPPs(res.apps);
         } else {
           this.$message({
             message: res.error,
@@ -145,10 +149,8 @@
         }
       },
       async handleCancelFollow(app) {
-        const { cancelFollowAPP } = API;
-        const account = db.get('user.account').value();
         // 没有登录，不能取消关注应用
-        if (!account) {
+        if (!this.account) {
           this.$message({
             message: '你尚未登录，不能进行操作',
             type: 'error'
@@ -156,11 +158,11 @@
           return;
         }
         // 取消关注
-        const res = await cancelFollowAPP(app);
+        const res = await this.cancelUserFollowAPP({ app });
         if (res.status) {
           this.$message('取消关注成功');
           this.app.followed = false;
-          db.get('user.follows').find({ title: app.title }).assign({ delete: 1 }).write();
+          this.sendFollowAPPs(res.apps);
         } else {
           this.$message({
             type: 'error',
@@ -173,7 +175,9 @@
       ]),
       ...mapActions([
         'fetchAppArticleList',
-        'fetchAppArticle'
+        'fetchAppArticle',
+        'userFollowAPP',
+        'cancelUserFollowAPP'
       ])
     }
   };

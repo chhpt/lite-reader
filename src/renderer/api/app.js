@@ -1,10 +1,5 @@
 import service from '../utils/service';
 
-const getAppList = () => service({
-  url: '/get_app_list',
-  method: 'GET'
-});
-
 const getMenu = app => service({
   url: '/get_menu',
   method: 'GET',
@@ -60,7 +55,6 @@ const getAppArticle = (url, section, hasRss) => service({
 });
 
 export default {
-  getAppList,
   getMenu,
   getArticleList,
   getArticle,

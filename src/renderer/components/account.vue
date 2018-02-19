@@ -26,7 +26,7 @@
         <el-tab-pane label="关注应用" name="follow"></el-tab-pane>
       </el-tabs>
       <div class="list">
-        <el-card class="card" v-for="item in list" :body-style="{padding: '1rem'}">
+        <el-card class="card" v-for="(item, index) in list" :key="index" :body-style="{padding: '1rem'}">
           <div class="item">
             <img :src="item.imageURL" alt="图标">
             <div class="item-info">
@@ -43,7 +43,7 @@
     </div>
     <!--退出账号-->
     <el-dialog
-        title="警告"
+        title="提示"
         :visible.sync="accountDialogVisible"
         width="30%">
       <span>确认退出账号吗？</span>
@@ -63,7 +63,7 @@
                :rules="checkRules"
                ref="userForm"
                label-width="50px"
-               class="user-form">
+               class="account-form">
         <el-form-item label="昵称" prop="username">
           <el-input v-model="editAccount.username"
                     placeholder="请输入你的昵称"
@@ -90,11 +90,8 @@
 </template>
 
 <script>
+  import { mapGetters, mapActions } from 'vuex';
   import Icon from './Icon';
-  import db from '../../dataStore';
-  import API from '../api';
-
-  const { getFollowAPPs } = API;
 
   export default {
     name: 'account',
@@ -122,7 +119,10 @@
       };
     },
     computed: {
-      account: () => db.get('user.account').value()
+      ...mapGetters([
+        'followAPPs',
+        'account'
+      ])
     },
     methods: {
       handleClick(tab) {
@@ -136,15 +136,26 @@
             this.getBrowserHistory();
             break;
           case '2':
-            this.getFollowAPPs();
+            this.fetchFollowAPPs().then((res) => {
+              if (res.status) {
+                this.list = this.followAPPs || [];
+              }
+            });
             break;
           default:
         }
       },
       handleLogout() {
-        // 情况本地账户信息
-        db.set('user.account', {}).write();
-        db.set('user.follows', {}).write();
+        this.userLogout().then((res) => {
+          if (res.status) {
+            this.$message({
+              message: '注销成功',
+              duration: '1000'
+            });
+            this.$router.push('/manage');
+          }
+          this.accountDialogVisible = false;
+        });
       },
       // 编辑个人信息（点击设置图标）
       editSetting() {
@@ -161,20 +172,26 @@
       },
       saveSetting(data) {
         // 更新本地的数据
-        db.set(`account.${data}`, this.editAccount[data]).write();
-        this.settingDialogVisible = false;
+        this.changeUserInfo({
+          [data]: this.editAccount[data]
+        }).then((res) => {
+          if (res.status) {
+            this.$message({
+              message: '更新成功',
+              duration: '1000'
+            });
+          }
+        });
       },
       getCollection() {
       },
       getBrowserHistory() {
       },
-      async getFollowAPPs() {
-        const res = await getFollowAPPs();
-        if (res.status) {
-          this.list = res.apps;
-          db.set('user.follows', res.apps).write();
-        }
-      }
+      ...mapActions([
+        'userLogout',
+        'changeUserInfo',
+        'fetchFollowAPPs'
+      ])
     },
     components: {
       Icon
@@ -277,9 +294,7 @@
     height: calc(100% - 4rem) !important;
   }
 
-  .user-form {
-    /*padding: 2rem;*/
-    /*box-shadow: 1px 2px 4px 2px rgba(0, 0, 0, 0.1);*/
+  .account-form {
     width: 80%;
     .el-form-item {
       margin-bottom: 1rem;

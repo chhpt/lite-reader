@@ -8,7 +8,6 @@
 
 <script>
   import { shell } from 'electron';
-  import Icon from './components/Icon';
   import db from '../dataStore';
 
   export default {
@@ -19,9 +18,6 @@
       document.addEventListener('dragenter', e => e.preventDefault(), false);
       document.addEventListener('dragleave', e => e.preventDefault(), false);
       document.addEventListener('dragover', e => e.preventDefault(), false);
-      // 获取 APP 列表
-      this.$store.dispatch('fetchAppList').catch(() => {
-      });
       // 判断是否为首次打开 APP
       const opened = db.get('app.opened').value();
       // 没有打开过，则进入首页
@@ -35,9 +31,6 @@
           shell.openExternal(event.target.href);
         }
       });
-    },
-    components: {
-      Icon
     }
   };
 </script>

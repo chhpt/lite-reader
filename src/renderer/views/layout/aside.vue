@@ -1,11 +1,22 @@
 <template>
   <div id="c-aside">
     <div class="app-wrapper">
-      <div v-for="app in appList" class="app">
-        <img :src="app.icon" @click="getAppMenu(app.id, app.type)" alt="图标">
+      <div v-for="app in followAPPs" class="app">
+        <img :src="app.imageURL" @click="getAppMenu(app.id, app.type)" alt="图标">
         <span @click="getAppMenu(app.id, app.type)" class="app-name" v-if="!close">
-          {{app.name}}
+          {{app.title}}
         </span>
+      </div>
+      <div v-if="!followAPPs.length" class="no-apps-waring">
+        <el-popover
+            placement="top"
+            width="180"
+            trigger="hover"
+            content="你还没有关注的应用，点击下方加号关注你的应用！">
+          <span slot="reference">
+            ~空空如野~
+          </span>
+        </el-popover>
       </div>
     </div>
     <div class="add-app">
@@ -18,6 +29,7 @@
 
 <script>
   import { mapGetters, mapActions, mapMutations } from 'vuex';
+  import { ipcRenderer } from 'electron';
 
   export default {
     data() {
@@ -25,7 +37,7 @@
     },
     computed: {
       ...mapGetters([
-        'appList'
+        'followAPPs'
       ])
     },
     props: {
@@ -33,6 +45,12 @@
         type: Boolean,
         default: true
       }
+    },
+    mounted() {
+      ipcRenderer.on('follow-apps', (event, args) => {
+        const { apps } = args;
+        this.setFollowAPPs(apps);
+      });
     },
     methods: {
       toggleSidebar() {
@@ -75,7 +93,8 @@
       ...mapMutations([
         'setActiveItem',
         'setLoading',
-        'setMenu'
+        'setMenu',
+        'setFollowAPPs'
       ]),
       ...mapActions([
         'fetchMenu',
@@ -88,13 +107,21 @@
 <style lang="scss" scoped>
   #c-aside {
     height: 100%;
-    /*padding-top: 2rem;*/
   }
 
   .app-wrapper {
     height: calc(100% - 4rem);
     overflow-y: scroll;
     border-bottom: 1px solid #ccc;
+    .no-apps-waring {
+      margin: 4rem 2rem;
+      text-align: center;
+      line-height: 3rem;
+      color: #6f7180;
+      span {
+        cursor: pointer;
+      }
+    }
   }
 
   .app-wrapper::-webkit-scrollbar {

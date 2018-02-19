@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, Menu, webContents } from 'electron';
+import { app, BrowserWindow, ipcMain, Menu } from 'electron';
 // import db from '../dataStore';
 /**
  * Set `__static` path to static files in production
@@ -131,12 +131,12 @@ ipcMain.on('new-window', (event, arg) => {
       }, 200);
     });
   }
-  // if (arg.action === 'close') {
-  //   newWindow.close();
-  //   newWindow = undefined;
-  // }
 });
 
+ipcMain.on('follow-action', (event, arg) => {
+  const { apps } = arg;
+  mainWindow.webContents.send('follow-apps', { apps });
+});
 
 app.on('ready', createWindow);
 
