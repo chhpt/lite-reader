@@ -1,5 +1,6 @@
 import API from '../../api';
 import db from '../../../dataStore';
+import colors from '../../themes/color';
 
 const {
   register,
@@ -13,20 +14,39 @@ const {
 
 const state = {
   account: {},
-  followAPPs: []
+  followAPPs: [],
+  themeColor: {
+    label: '',
+    value: ''
+  },
+  colors: []
 };
 
 const getters = {
-  account: state => (state.account.id ? state.account : db.get('user.account').value())
+  account: state => (state.account.id ? state.account : db.get('user.account').value()),
+  colors: state => (state.colors.length ? state.colors : colors),
+  themeColor: state => {
+    if (state.themeColor.value) {
+      return state.themeColor;
+    }
+    const theme = db.get('user.themeColor').value();
+    return colors[theme];
+  }
 };
 
 const mutations = {
   setAccount(state, account) {
     state.account = account;
+    db.set('user.account', account).write();
   },
   setFollowAPPs(state, followAPPs) {
     state.followAPPs = followAPPs || [];
+    db.set('user.follows', followAPPs).write();
   },
+  setThemeColor(state, color) {
+    state.themeColor = color;
+    db.set('user.themeColor', color).write();
+  }
 };
 
 const actions = {
@@ -45,8 +65,6 @@ const actions = {
       const { username, id } = res;
       const account = { email, username, id };
       commit('setAccount', account);
-      // 存储本地信息
-      db.set('user.account', account).write();
     }
     return res;
   },
@@ -55,9 +73,6 @@ const actions = {
     if (res.status) {
       commit('setAccount', {});
       commit('setFollowAPPs', []);
-      // 清空本地信息
-      db.set('user.account', null).write();
-      db.set('user.follows', []).write();
     }
     return res;
   },
@@ -67,8 +82,6 @@ const actions = {
     if (res.status) {
       const { account } = res;
       commit('setAccount', account);
-      // 存储本地信息
-      db.set('user.account', account).write();
     }
     return res;
   },
@@ -87,7 +100,6 @@ const actions = {
     if (res.status) {
       const { apps } = res;
       commit('setFollowAPPs', apps);
-      db.set('user.follows', apps);
     }
     return res;
   },
@@ -98,7 +110,6 @@ const actions = {
     if (res.status) {
       const { apps } = res;
       commit('setFollowAPPs', apps);
-      db.set('user.follows', apps);
     }
     return res;
   }

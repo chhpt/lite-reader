@@ -8,7 +8,7 @@
             <Icon name="yonghu" font-size="2.5rem"></Icon>
             <span slot="title">我的账户</span>
           </el-menu-item>
-          <el-menu-item index="/manage/">
+          <el-menu-item index="/manage/setting">
             <Icon name="shezhi" font-size="2.5rem"></Icon>
             <span slot="title">应用设置</span>
           </el-menu-item>
@@ -31,9 +31,8 @@
       bus.$on('manage-message', (message) => {
         this.$notify({
           message,
-          title: '警告',
-          type: 'warning',
-          duration: 2500,
+          title: '提示',
+          duration: 2000,
           offset: 30
         });
       });

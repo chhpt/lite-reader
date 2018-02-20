@@ -1,6 +1,6 @@
 <template>
   <div id='app'>
-    <div class="bar">
+    <div class="bar" :style="{backgroundColor: barBackground}">
     </div>
     <router-view></router-view>
   </div>
@@ -8,10 +8,23 @@
 
 <script>
   import { shell } from 'electron';
+  import { mapGetters } from 'vuex';
   import db from '../dataStore';
 
   export default {
     name: 'lite-reader',
+    data() {
+      return {
+      };
+    },
+    computed: {
+      barBackground() {
+        return this.themeColor.value;
+      },
+      ...mapGetters([
+        'themeColor'
+      ])
+    },
     mounted() {
       // 禁用浏览器默认拖拽事件，防止用户拖拽的文件被打开
       document.addEventListener('drop', e => e.preventDefault(), false);
@@ -69,7 +82,6 @@
     top: 0;
     width: 100%;
     height: 4rem;
-    background: #606266;
     z-index: 100;
     /*窗口拖拽*/
     -webkit-app-region: drag;

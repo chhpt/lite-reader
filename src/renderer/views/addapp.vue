@@ -19,8 +19,11 @@
         <el-aside width="160px">
           <div class="categories">
             <div class="category" v-for="(category, index) in categories">
-              <div class="category-title" @click="loadAppList(index)" :class="{highlight: highlight[index]}">
-                {{category.title}}
+              <div class="category-title"
+                   @click="loadAppList(index)"
+                   :class="{highlight: highlight[index]}">
+                <span v-if="highlight[index]" :style="{color: themeColor.value}">{{category.title}}</span>
+                <span v-if="!highlight[index]">{{category.title}}</span>
               </div>
             </div>
           </div>
@@ -72,7 +75,8 @@
         'categories',
         'apps',
         'account',
-        'followAPPs'
+        'followAPPs',
+        'themeColor'
       ])
     },
     beforeMount() {
@@ -268,10 +272,7 @@
       height: 4rem;
       padding: 0 2rem;
       cursor: pointer;
-      color: #606266;
-      &.highlight {
-        color: #3a8ee6;
-      }
+      color: #909399;
     }
   }
 

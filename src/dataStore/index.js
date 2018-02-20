@@ -20,6 +20,10 @@ if (!db.has('app').value()) {
   db.set('app', {}).write();
 }
 
+if (!db.has('user.themeColor').value()) {
+  db.set('user.themeColor', 'gray').write();
+}
+
 if (!db.has('user.follows').value()) {
   db.set('user.follows', []).write();
 }

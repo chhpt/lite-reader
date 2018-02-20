@@ -26,6 +26,7 @@ const createSettingWindow = () => {
     width: 800,
     center: true,
     // resizable: false,
+    backgroundColor: '#fff',
     title: 'LiteReader',
     titleBarStyle: 'hiddenInset',
     parent: mainWindow
@@ -136,6 +137,11 @@ ipcMain.on('new-window', (event, arg) => {
 ipcMain.on('follow-action', (event, arg) => {
   const { apps } = arg;
   mainWindow.webContents.send('follow-apps', { apps });
+});
+
+ipcMain.on('relaunch-app', () => {
+  app.relaunch({ args: process.argv.slice(1).concat(['--relaunch']) });
+  app.exit(0);
 });
 
 app.on('ready', createWindow);

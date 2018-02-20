@@ -13,6 +13,8 @@ const Login = r => require.ensure([], () => r(require('@/views/login')), 'login'
 const ArticleList = r => require.ensure([], () => r(require('@/components/articleList')), 'articleList');
 const Reader = r => require.ensure([], () => r(require('@/components/reader')), 'reader');
 const Account = r => require.ensure([], () => r(require('@/components/account')), 'account');
+const Setting = r => require.ensure([], () => r(require('@/components/setting')), 'setting');
+
 
 export default new Router({
   routes: [
@@ -55,6 +57,10 @@ export default new Router({
         {
           path: 'account',
           component: Account
+        },
+        {
+          path: 'setting',
+          component: Setting
         }
       ]
     },
