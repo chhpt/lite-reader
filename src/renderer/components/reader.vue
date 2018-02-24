@@ -55,8 +55,8 @@
   }
 
   .el-container {
-    line-height: 3.5rem;
     height: 100%;
+    line-height: 3.5rem;
   }
 
   .el-header {
@@ -75,6 +75,7 @@
   }
 
   .el-main {
+    height: calc(100% - 5rem);
     &::-webkit-scrollbar {
       background: transparent;
       width: 0.4rem;

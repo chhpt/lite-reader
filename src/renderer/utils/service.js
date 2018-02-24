@@ -39,7 +39,7 @@ service.interceptors.response.use(response => response.data, (error) => {
   } else if (error.message === 'Network Error') {
     // 网络错误
     new Notification('警告', {
-      body: '你的网络存在异常，请连接网络后重试！'
+      body: '请求错误，请检查你的网络或重试！'
     });
     throw new Error(error.message);
   }
