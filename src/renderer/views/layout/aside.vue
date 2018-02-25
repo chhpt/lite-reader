@@ -2,8 +2,8 @@
   <div id="c-aside">
     <div class="app-wrapper">
       <div v-for="app in followAPPs" class="app">
-        <img :src="app.imageURL" @click="getAppMenu(app.id, app.type)" alt="图标">
-        <span @click="getAppMenu(app.id, app.type)" class="app-name" v-if="!close">
+        <img :src="app.imageURL" @click="getAppMenu(app)" alt="图标">
+        <span @click="getAppMenu(app)" class="app-name" v-if="!close">
           {{app.title}}
         </span>
       </div>
@@ -60,37 +60,29 @@
       loadAddWindow() {
         this.$router.push('/addapp');
       },
-      async getAppMenu(id, type) {
+      async getAppMenu(app) {
+        const { type, appId, remoteid } = app;
         this.setLoading(true);
-        // 普通应用
-        if (!type) {
-          // 设置应用名称
-          this.$store.commit('setAppName', id);
-          // 获取栏目列表
-          const menu = await this.fetchMenu(id);
-          // 默认直接加载第一个栏目的文章
-          this.setActiveItem(menu[0]);
-          await this.fetchArticleList({
-            app: id,
-            page: 1,
-            url: menu[0].url,
-            column: menu[0].title
-          });
-          this.setLoading(false);
-        } else { // 微信公众号
-          this.$store.commit('setAppName', 'weixin');
-          this.setMenu([]);
-          this.fetchArticleList({
-            app: 'weixin',
-            page: 1,
-            column: id
-          }).then(() => {
-            this.setLoading(false);
-          });
-        }
+        // 设置应用名称
+        this.setCurrentApp(app);
+        // 获取栏目列表
+        const menu = await this.fetchMenu({
+          appId,
+          type
+        });
+        // 默认直接加载第一个栏目的文章
+        this.setActiveItem(menu[0]);
+        await this.fetchArticleList({
+          type,
+          appId,
+          column: type ? menu[0].name : remoteid,
+          id: 0
+        });
+        this.setLoading(false);
         this.$router.push('/list');
       },
       ...mapMutations([
+        'setCurrentApp',
         'setActiveItem',
         'setLoading',
         'setMenu',

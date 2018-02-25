@@ -1,32 +1,33 @@
 import service from '../utils/service';
 
-const getMenu = app => service({
+const getMenu = (type, appId) => service({
   url: '/get_menu',
   method: 'GET',
   params: {
-    app
+    type,
+    appId
   }
 });
 
-const getArticleList = (app, page, column, url, id) => service({
+const getArticleList = (type, appId, column, id, page) => service({
   url: '/get_article_list',
   method: 'GET',
   params: {
-    app,
-    page,
+    type,
+    appId,
     column,
-    url,
-    id
+    id,
+    page
   }
 });
 
-const getArticle = (app, url, payload) => service({
+const getArticle = (type, appId, article) => service({
   url: '/get_article',
   method: 'GET',
   params: {
-    app,
-    url,
-    payload
+    type,
+    appId,
+    article
   }
 });
 
@@ -35,30 +36,10 @@ const getCategories = () => service({
   method: 'GET'
 });
 
-const getAppArticleList = (section, id) => service({
-  url: '/get_app_article_list',
-  method: 'GET',
-  params: {
-    section,
-    id
-  }
-});
-
-const getAppArticle = (url, section, hasRss) => service({
-  url: '/get_app_article',
-  method: 'GET',
-  params: {
-    url,
-    section,
-    hasRss
-  }
-});
-
 export default {
   getMenu,
   getArticleList,
   getArticle,
-  getCategories,
-  getAppArticleList,
-  getAppArticle
+  getCategories
 };
+

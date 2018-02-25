@@ -15,7 +15,7 @@
       </el-autocomplete>
     </div>
     <div class="all-apps">
-      <el-container>
+      <el-container class="container">
         <el-aside width="160px">
           <div class="categories">
             <div class="category" v-for="(category, index) in categories">
@@ -104,14 +104,8 @@
         const apps = [];
         v.forEach((e) => {
           e.sections.forEach((app) => {
-            const { title, imageURL, description, remoteid } = app;
-            apps.push({
-              value: title,
-              title,
-              description,
-              imageURL,
-              remoteid
-            });
+            app.value = app.title;
+            apps.push(app);
           });
         });
         this.setAPPs(apps);
@@ -257,6 +251,9 @@
     width: 80%;
     height: calc(100% - 230px);
     margin: 2rem auto;
+    .container {
+      height: 100%;
+    }
     .el-aside {
       overflow-y: auto;
     }

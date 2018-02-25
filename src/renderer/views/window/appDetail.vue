@@ -2,26 +2,26 @@
   <div id="app-detail">
     <div class="app-detail-inner">
       <div class="app">
-        <img :src="app.imageURL" alt="图片">
+        <img :src="currentApp.imageURL" alt="图片">
         <div class="app-info">
           <div class="app-name">
-            {{app.title}}
+            {{currentApp.title}}
           </div>
           <div class="app-description">
-            {{app.description}}
+            {{currentApp.description}}
           </div>
         </div>
         <div class="follow">
-          <el-button size="small" @click="handleFollowAPP(app)" v-if="!app.followed">关注</el-button>
-          <el-button size="small" @click="handleCancelFollow(app)" type="primary" icon="el-icon-check"
-                     v-if="app.followed">取消关注
+          <el-button size="small" @click="handleFollowAPP(currentApp)" v-if="!currentApp.followed">关注</el-button>
+          <el-button size="small" @click="handleCancelFollow(currentApp)" type="primary" icon="el-icon-check"
+                     v-if="currentApp.followed">取消关注
           </el-button>
         </div>
       </div>
       <div class="article-list"
            v-loading="loading"
            element-loading-text="精彩内容马上来到...">
-        <div class="article" v-for="article in appArticleList">
+        <div class="article" v-for="article in articleList">
           <div class="article-info">
             <div class="article-title" @click="loadArticle(article)">
               {{article.title}}
@@ -37,7 +37,7 @@
           </div>
         </div>
         <!--有文章时才显示加载更多-->
-        <div class="load-more" v-if="appArticleList.length">
+        <div class="load-more" v-if="articleList.length">
           <el-button plain :loading="loadingMore" @click="loadMoreArticles">
             加载更多
           </el-button>
@@ -50,35 +50,37 @@
 <script>
   import { ipcRenderer } from 'electron';
   import { mapGetters, mapMutations, mapActions } from 'vuex';
-  import db from '../../../dataStore';
 
   export default {
     name: 'app-detail',
     data() {
       return {
         loading: true,
-        loadingMore: false
+        loadingMore: false,
+        page: 1
       };
     },
     computed: {
       ...mapGetters([
-        'appArticleList',
-        'app',
-        'account'
+        'articleList',
+        'currentApp',
+        'account',
+        'activeItem'
       ])
     },
     created() {
-      if (this.appArticleList.length) {
+      if (this.articleList.length) {
         this.loading = false;
         return;
       }
       ipcRenderer.on('app-detail', (event, app) => {
-        this.setApp(app);
-        // 根据本地数据判断是否关注了应用
-        this.followed = db.get('user.follows').find({ title: this.app.title }).value();
+        this.setCurrentApp(app);
+        const { type, appId, remoteid } = this.currentApp;
         // 获取
-        this.fetchAppArticleList({
-          section: this.app.remoteid
+        this.fetchArticleList({
+          type,
+          appId,
+          column: type ? 'home' : remoteid
         }).then(() => {
           this.loading = false;
         });
@@ -107,23 +109,47 @@
         });
       },
       // 点击文章加载文章内容
-      loadArticle(article) {
-        const { url, section, hasRss } = article;
-        this.fetchAppArticle({
-          url, section, hasRss
-        }).then(() => {
-          this.$router.push('/app_reader');
-        });
+      async loadArticle(article) {
+        this.loading = true;
+        const { type, appId } = this.currentApp;
+        // 文章内容是否已经存在
+        if (article.content) {
+          this.setArticle(article);
+        } else {
+          try {
+            await this.fetchArticle({
+              type,
+              appId,
+              article
+            });
+          } catch (err) {
+            this.loading = false;
+            throw new Error(err);
+          }
+        }
+        this.loading = false;
+        this.$router.push('/app_reader');
       },
       // 加载更多文章
       async loadMoreArticles() {
         this.loadingMore = true;
         // 最后一篇文章的 id
-        const { id } = this.appArticleList[this.appArticleList.length - 1];
-        await this.fetchAppArticleList({
-          id,
-          section: this.app.remoteid
-        });
+        this.page = this.page + 1;
+        const { id } = this.articleList[this.articleList.length - 1];
+        const { type, appId, remoteid } = this.currentApp;
+        const { name } = this.activeItem;
+        try {
+          await this.fetchMoreArticles({
+            type,
+            appId,
+            id,
+            column: type ? name : remoteid,
+            page: this.page
+          });
+        } catch (err) {
+          this.loadingMore = false;
+          throw new Error(err);
+        }
         this.loadingMore = false;
       },
       async handleFollowAPP(app) {
@@ -139,7 +165,7 @@
         const res = await this.userFollowAPP({ app });
         if (res.status) {
           this.$message('关注成功');
-          this.app.followed = true;
+          this.currentApp.followed = true;
           this.sendFollowAPPs(res.apps);
         } else {
           this.$message({
@@ -161,7 +187,7 @@
         const res = await this.cancelUserFollowAPP({ app });
         if (res.status) {
           this.$message('取消关注成功');
-          this.app.followed = false;
+          this.currentApp.followed = false;
           this.sendFollowAPPs(res.apps);
         } else {
           this.$message({
@@ -171,11 +197,11 @@
         }
       },
       ...mapMutations([
-        'setApp'
+        'setCurrentApp'
       ]),
       ...mapActions([
-        'fetchAppArticleList',
-        'fetchAppArticle',
+        'fetchArticleList',
+        'fetchArticle',
         'userFollowAPP',
         'cancelUserFollowAPP'
       ])

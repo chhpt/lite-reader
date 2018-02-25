@@ -1,5 +1,6 @@
 import API from '../../api';
-const { getMenu, getArticleList, getArticle, getAppArticle } = API;
+
+const { getMenu, getArticleList, getArticle } = API;
 
 const state = {
   // 当前栏目
@@ -7,8 +8,8 @@ const state = {
     title: '',
     url: ''
   },
-  // 应用名
-  name: '',
+  // 当前应用
+  currentApp: {},
   // 文章列表
   articleList: [],
   // 栏目列表
@@ -25,8 +26,8 @@ const mutations = {
   setMenu(state, menu) {
     state.menu = menu || [];
   },
-  setAppName(state, name) {
-    state.name = name;
+  setCurrentApp(state, app) {
+    state.currentApp = app;
   },
   setArticleList(state, articleList) {
     state.articleList = articleList || [];
@@ -46,25 +47,28 @@ const mutations = {
 };
 
 const actions = {
-  async fetchMenu({ commit }, app) {
+  async fetchMenu({ commit }, payload) {
     commit('setMenu', []);
-    const menu = await getMenu(app);
+    const type = payload.type ? Number(payload.type) : 0;
+    const menu = await getMenu(type, payload.appId);
     commit('setMenu', menu);
     return menu;
   },
 
   async fetchArticleList({ commit }, payload) {
     commit('setArticleList', []);
+    const type = payload.type ? Number(payload.type) : 0;
     const articleList = await getArticleList(
-      payload.app, payload.page, payload.column, payload.url, payload.id
+      type, payload.appId, payload.column
     );
     commit('setArticleList', articleList);
     return articleList;
   },
 
   async fetchMoreArticles({ commit, state }, payload) {
+    const type = payload.type ? Number(payload.type) : 0;
     const moreArticles = await getArticleList(
-      payload.app, payload.page, payload.column, payload.url, payload.id
+      type, payload.appId, payload.column, payload.id, payload.page
     );
     const articleList = state.articleList.concat(moreArticles);
     commit('setArticleList', articleList);
@@ -73,17 +77,10 @@ const actions = {
 
   async fetchArticle({ commit }, payload) {
     commit('setArticle', {});
-    const article = await getArticle(payload.app, payload.url, {
-      id: payload.id,
-      category: payload.category
-    });
-    commit('setArticle', article);
-    return article;
-  },
-
-  async fetchAppArticle({ commit }, payload) {
-    const { url, section, hasRss } = payload;
-    const article = await getAppArticle(url, section, hasRss);
+    const type = payload.type ? Number(payload.type) : 0;
+    const article = await getArticle(
+      type, payload.appId, payload.article
+    );
     commit('setArticle', article);
     return article;
   }

@@ -51,7 +51,7 @@ figure {
 }
 
 img {
-   max-height: 668px;
+   height: auto;
    max-width: 100%;
    outline: none;
 }

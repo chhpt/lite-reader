@@ -85,7 +85,7 @@
   };
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
   #root {
     height: 100%;
   }

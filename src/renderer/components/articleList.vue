@@ -68,61 +68,79 @@
       ...mapGetters([
         'activeItem',
         'menu',
-        'name',
+        'currentApp',
         'articleList'
       ])
     },
     methods: {
       // 切换栏目
-      handleTabClick(tab) {
+      async handleTabClick(tab) {
         // 设置激活栏目
         this.active = this.activeItem.title;
         this.setActiveItem(this.menu[tab.index]);
-        const url = this.menu[tab.index].url;
-        // 文章 id
-        const id = 0;
         this.setLoading(true);
-        this.fetchArticleList({
-          url, id, app: this.name, page: 1, column: this.activeItem.title
-        }).then(() => {
+        const { type, appId, remoteid } = this.currentApp;
+        const { name } = this.activeItem;
+        try {
+          await this.fetchArticleList({
+            type,
+            appId,
+            column: type ? name : remoteid
+          });
+        } catch (err) {
           this.setLoading(false);
-        });
+          throw new Error(err);
+        }
+        this.setLoading(false);
       },
       // 加载文章
-      loadArticle(article) {
+      async loadArticle(article) {
         this.setLoading(true);
-        this.fetchArticle({
-          url: article.url,
-          app: this.name,
-          id: article.id,
-          category: article.category
-        }).then(() => {
-          this.setLoading(false);
-        }).catch(() => {
-        });
+        const { type, appId } = this.currentApp;
+        // 文章内容是否已经存在
+        if (article.content) {
+          this.setArticle(article);
+        } else {
+          try {
+            await this.fetchArticle({
+              type,
+              appId,
+              article
+            });
+          } catch (err) {
+            this.setLoading(false);
+            throw new Error(err);
+          }
+        }
+        this.setLoading(false);
         this.$router.replace('/reader');
       },
       // 加载更多文章
-      loadMoreArticles() {
+      async loadMoreArticles() {
         this.loading = true;
+        this.page = this.page + 1;
         // 最后一篇文章的 id
         const id = this.articleList[this.articleList.length - 1].id;
-        this.page = this.page + 1;
-        this.fetchMoreArticles({
-          id,
-          app: this.name,
-          column: this.activeItem.title,
-          page: this.page,
-          url: this.activeItem.url
-        }).then(() => {
+        const { type, appId, remoteid } = this.currentApp;
+        const { name } = this.activeItem;
+        try {
+          await this.fetchMoreArticles({
+            type,
+            appId,
+            id,
+            column: type ? name : remoteid,
+            page: this.page
+          });
+        } catch (err) {
           this.loading = false;
-        }).catch(() => {
-          this.loading = false;
-        });
+          throw new Error(err);
+        }
+        this.loading = false;
       },
       ...mapMutations([
         'setLoading',
-        'setActiveItem'
+        'setActiveItem',
+        'setArticle'
       ]),
       ...mapActions([
         'fetchArticleList',
@@ -132,7 +150,7 @@
     }
   };
 </script>
-<style lang="scss" scoped>
+<style lang="scss">
   #article-list,
   .el-container {
     position: relative;
@@ -151,6 +169,7 @@
   }
 
   .el-main {
+    height: calc(100% - 50px);
     &::-webkit-scrollbar {
       background: transparent;
       width: 0.4rem;
@@ -186,10 +205,10 @@
     .image-wrapper {
       height: 11rem;
       width: 18rem;
-    }
-    img {
-      max-height: 11rem;
-      max-width: 18rem;
+      img {
+        max-height: 11rem;
+        max-width: 18rem;
+      }
     }
   }
 
