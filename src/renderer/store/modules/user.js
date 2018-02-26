@@ -24,6 +24,7 @@ const state = {
 
 const getters = {
   account: state => (state.account.id ? state.account : db.get('user.account').value()),
+  followAPPs: state => (state.followAPPs.length ? state.followAPPs : db.get('user.follows').value()),
   colors: state => (state.colors.length ? state.colors : colors),
   themeColor: state => {
     if (state.themeColor.value) {
@@ -35,6 +36,7 @@ const getters = {
 };
 
 const mutations = {
+  // 在 mutation 里对本地数据进行更改
   setAccount(state, account) {
     state.account = account;
     db.set('user.account', account).write();
@@ -51,22 +53,22 @@ const mutations = {
 
 const actions = {
   async userRegister({ commit }, payload) {
-    const { email, password, username } = payload;
-    const res = await register(email, username, password);
-    if (res.id) {
+    const { email, password, username, code } = payload;
+    const user = await register(email, username, password, code);
+    if (user.id) {
       commit('setAccount', { email, username });
     }
-    return res;
+    return user;
   },
   async userLogin({ commit }, payload) {
     const { email, password } = payload;
-    const res = await login(email, password);
-    if (res.id) {
-      const { username, id } = res;
+    const user = await login(email, password);
+    if (user.id) {
+      const { username, id } = user;
       const account = { email, username, id };
       commit('setAccount', account);
     }
-    return res;
+    return user;
   },
   async userLogout({ commit }) {
     const res = await logout();

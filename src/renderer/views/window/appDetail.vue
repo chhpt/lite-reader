@@ -50,6 +50,7 @@
 <script>
   import { ipcRenderer } from 'electron';
   import { mapGetters, mapMutations, mapActions } from 'vuex';
+  import db from '../../../dataStore';
 
   export default {
     name: 'app-detail',
@@ -84,6 +85,10 @@
         }).then(() => {
           this.loading = false;
         });
+        // 从本地读取关注应用的数据（从搜索框直接选择 APP 可能会导致 APP 的关注状态有误）
+        const followApps = db.get('user.follows').value();
+        const exit = followApps.find((e) => e.title === app.title);
+        this.currentApp.followed = Boolean(exit);
       });
     },
     filters: {

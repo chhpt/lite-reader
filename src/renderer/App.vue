@@ -9,20 +9,16 @@
 <script>
   import { shell } from 'electron';
   import { mapGetters } from 'vuex';
-  import db from '../dataStore';
 
   export default {
     name: 'lite-reader',
-    data() {
-      return {
-      };
-    },
     computed: {
       barBackground() {
         return this.themeColor.value;
       },
       ...mapGetters([
-        'themeColor'
+        'themeColor',
+        'opened'
       ])
     },
     mounted() {
@@ -31,10 +27,8 @@
       document.addEventListener('dragenter', e => e.preventDefault(), false);
       document.addEventListener('dragleave', e => e.preventDefault(), false);
       document.addEventListener('dragover', e => e.preventDefault(), false);
-      // 判断是否为首次打开 APP
-      const opened = db.get('app.opened').value();
       // 没有打开过，则进入首页
-      if (!opened) {
+      if (!this.opened) {
         this.$router.push('/login');
       }
       // 在外部浏览器中打开链接

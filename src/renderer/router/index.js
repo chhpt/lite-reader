@@ -3,13 +3,21 @@ import Router from 'vue-router';
 
 Vue.use(Router);
 
-// 懒加载
+/**
+ * 懒加载
+ */
+
+// 主窗口
 const Index = r => require.ensure([], () => r(require('@/views/index')), 'index');
 const AddApp = r => require.ensure([], () => r(require('@/views/addapp')), 'addapp');
-const AppDetail = r => require.ensure([], () => r(require('@/views/window/appDetail')), 'appdetail');
-const Manage = r => require.ensure([], () => r(require('@/views/manage')), 'setting');
 const Login = r => require.ensure([], () => r(require('@/views/login')), 'login');
 
+// 新窗口
+const AppDetail = r => require.ensure([], () => r(require('@/views/window/appDetail')), 'appdetail');
+const Manage = r => require.ensure([], () => r(require('@/views/window/manage')), 'manage');
+const Feedback = r => require.ensure([], () => r(require('@/views/window/feedback')), 'feedback');
+
+// 组件
 const ArticleList = r => require.ensure([], () => r(require('@/components/articleList')), 'articleList');
 const Reader = r => require.ensure([], () => r(require('@/components/reader')), 'reader');
 const Account = r => require.ensure([], () => r(require('@/components/account')), 'account');
@@ -63,6 +71,10 @@ export default new Router({
           component: Setting
         }
       ]
+    },
+    {
+      path: '/feedback',
+      component: Feedback
     },
     {
       path: '/login',

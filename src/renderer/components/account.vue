@@ -37,7 +37,13 @@
                 {{item.description}}
               </div>
             </div>
+            <div class="item-action">
+              <el-button type="text" @click="handleCancelFollow(item)">取消关注</el-button>
+            </div>
           </div>
+        </el-card>
+        <el-card v-if="!list.length" class="card">
+          暂时没有数据
         </el-card>
       </div>
     </div>
@@ -91,6 +97,7 @@
 
 <script>
   import { mapGetters, mapActions } from 'vuex';
+  import { ipcRenderer } from 'electron';
   import Icon from './Icon';
 
   export default {
@@ -125,6 +132,12 @@
       ])
     },
     methods: {
+      // 向主进程同步关注应用
+      sendFollowAPPs(apps) {
+        ipcRenderer.send('follow-action', {
+          apps
+        });
+      },
       handleClick(tab) {
         const { index } = tab;
         this.list = [];
@@ -136,13 +149,36 @@
             this.getBrowserHistory();
             break;
           case '2':
-            this.fetchFollowAPPs().then((res) => {
-              if (res.status) {
-                this.list = this.followAPPs || [];
-              }
-            });
+            // 获取关注的应用
+            if (this.followAPPs.length) {
+              this.list = this.followAPPs;
+            }
             break;
           default:
+        }
+      },
+      async handleCancelFollow(app) {
+        // 没有登录，不能取消关注应用
+        if (!this.account) {
+          this.$message({
+            message: '你尚未登录，不能进行操作',
+            type: 'error'
+          });
+          return;
+        }
+        // 取消关注
+        const res = await this.cancelUserFollowAPP({ app });
+        if (res.status) {
+          this.$message('取消关注成功');
+          const { apps } = res;
+          this.list = apps;
+          // 同步主进程状态
+          this.sendFollowAPPs(apps);
+        } else {
+          this.$message({
+            type: 'error',
+            message: res.error
+          });
         }
       },
       handleLogout() {
@@ -190,7 +226,7 @@
       ...mapActions([
         'userLogout',
         'changeUserInfo',
-        'fetchFollowAPPs'
+        'cancelUserFollowAPP'
       ])
     },
     components: {
@@ -210,7 +246,7 @@
 
   .personal {
     display: flex;
-    padding: 2rem;
+    padding: 2rem 5rem;
     width: 100%;
     height: 10rem;
     .image-wrapper {
@@ -254,6 +290,7 @@
     height: calc(100% - 10rem);
     padding: 0 2rem;
     .el-tabs {
+      margin: 0 3rem;
       height: 5rem;
     }
   }
@@ -263,10 +300,7 @@
     overflow: scroll;
     @include normalScrollbar;
     .card {
-      margin: 1rem 0;
-      .el-card__body {
-        padding: 0;
-      }
+      margin: 1rem 3rem;
       img {
         width: 5rem;
         height: 5rem;
@@ -274,9 +308,12 @@
       }
       .item {
         display: flex;
+        flex-direction: row;
+        justify-content: space-between;
       }
       .item-info {
         margin-left: 2rem;
+        flex: 1 1 auto;
       }
       .title {
         font-size: 1.8rem;
@@ -284,6 +321,10 @@
       }
       .description {
         margin-top: 0.8rem;
+      }
+      .item-action {
+        display: flex;
+        align-items: center;
       }
     }
   }

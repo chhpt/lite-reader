@@ -22,8 +22,8 @@
 </template>
 
 <script>
-  import Icon from '../components/Icon';
-  import bus from '../utils/bus';
+  import Icon from '../../components/Icon';
+  import bus from '../../utils/bus';
 
   export default {
     name: 'setting',

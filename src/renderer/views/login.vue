@@ -8,16 +8,32 @@
                :rules="checkRules"
                label-position="top"
                ref="userForm"
+               :inline="true"
                label-width="80px"
                class="user-form">
         <el-form-item label="用户名" prop="username" v-if="register">
           <el-input v-model="userForm.username"></el-input>
         </el-form-item>
         <el-form-item label="邮箱" prop="email">
-          <el-input v-model="userForm.email"></el-input>
+          <el-input v-model="userForm.email" :class="{'email-input': register}"></el-input>
+          <el-popover
+              placement="top"
+              width="120"
+              trigger="hover"
+              content="点击发送验证码到你的邮箱！">
+            <el-button type="text"
+                       class="send-code"
+                       @click="sendCode"
+                       v-if="register"
+                       slot="reference">发送验证码
+            </el-button>
+          </el-popover>
         </el-form-item>
-        <el-form-item label="密码" prop="password">
+        <el-form-item label="密码" prop="password" :class="{password: register}">
           <el-input type="password" v-model="userForm.password"></el-input>
+        </el-form-item>
+        <el-form-item label="验证码" prop="code" class="code" v-if="register">
+          <el-input v-model="userForm.code"></el-input>
         </el-form-item>
       </el-form>
       <div class="operation">
@@ -28,7 +44,7 @@
           <el-button type="primary" @click="handleAction">{{actionText}}</el-button>
         </div>
       </div>
-      <div class="intro-text" v-if="firstOpen">
+      <div class="intro-text" v-if="opened">
         请登录你的账号，使用全部功能。
         点击<span @click="redirection">跳过</span>直接体验。
       </div>
@@ -37,9 +53,11 @@
 </template>
 
 <script>
-  import { mapActions } from 'vuex';
-  import db from '../../dataStore';
+  import { mapGetters, mapMutations, mapActions } from 'vuex';
   import passwordEncrypt from '../utils/encrypt';
+  import API from '../api';
+
+  const { sendVerificationCode } = API;
 
   export default {
     name: 'login',
@@ -48,7 +66,8 @@
         userForm: {
           email: '',
           username: '',
-          password: ''
+          password: '',
+          code: ''
         },
         checkRules: {
           email: [
@@ -61,6 +80,9 @@
           password: [
             { required: true, message: '请输入密码', trigger: 'blur' },
             { min: 8, message: '密码长度不得小于 8 位', trigger: 'blur' }
+          ],
+          code: [
+            { required: true, message: '请输入验证码', trigger: 'blur' }
           ]
         },
         register: false,
@@ -69,13 +91,14 @@
         firstOpen: true
       };
     },
+    computed: {
+      ...mapGetters([
+        'opened'
+      ])
+    },
     mounted() {
-      const opened = db.get('app.opened').value();
-      if (!opened) {
-        db.set('app.opened', true).write();
-        this.firstOpen = true;
-      } else {
-        this.firstOpen = false;
+      if (!this.opened) {
+        this.setOpenStatus(true);
       }
     },
     methods: {
@@ -87,13 +110,37 @@
       redirection() {
         this.$router.push('/');
       },
+      async sendCode() {
+        const { email } = this.userForm;
+        if (!email) {
+          this.$message({
+            type: 'error',
+            message: '邮箱不能为空'
+          });
+          return;
+        }
+        const res = await sendVerificationCode(email);
+        if (res.status) {
+          this.$message('验证码发送成功，请查看你的邮箱');
+        } else {
+          this.$message({
+            type: 'error',
+            message: res.error
+          });
+        }
+      },
       async handleAction() {
         // 注册
         if (this.register) {
-          const { username, email, password } = this.userForm;
+          const { username, email, password, code } = this.userForm;
           // 对密码进行加密
           const cipher = passwordEncrypt(password);
-          const res = await this.userRegister({ username, email, password: cipher.toString() });
+          const res = await this.userRegister({
+            username,
+            email,
+            code,
+            password: cipher.toString()
+          });
           if (res.status) {
             this.$message('注册成功！');
           } else {
@@ -123,6 +170,9 @@
           }
         }
       },
+      ...mapMutations([
+        'setOpenStatus'
+      ]),
       ...mapActions([
         'userRegister',
         'userLogin'
@@ -148,6 +198,23 @@
   .form {
     width: 42rem;
     margin: 0 auto;
+    .el-form-item {
+      width: 100%;
+      margin-right: 0;
+    }
+    .email-input {
+      width: calc(100% - 10rem);
+    }
+    .send-code {
+      margin-left: 1rem;
+      width: 8rem;
+    }
+    .password {
+      width: 60%;
+    }
+    .code {
+      width: 38%;
+    }
   }
 
   .register {

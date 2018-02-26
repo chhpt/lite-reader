@@ -18,7 +18,6 @@
   import Split from 'split.js';
   import Aside from './layout/aside';
   import Main from './layout/main';
-  import db from '../../dataStore';
 
   export default {
     name: 'index',
@@ -32,7 +31,8 @@
     },
     computed: {
       ...mapGetters([
-        'loading'
+        'loading',
+        'account'
       ])
     },
     mounted() {
@@ -52,22 +52,15 @@
         }
       });
       // 账户存在，获取用户的应用列表
-      const account = db.get('user.account').value();
-      if (account) {
+      if (this.account.username) {
         this.fetchFollowAPPs().then((res) => {
-          if (res.status) {
-            const { apps } = res;
-            db.set('user.follows', apps).write();
-          } else {
+          if (!res.status) {
             this.$message({
               type: 'error',
               message: res.error
             });
           }
         });
-      } else {
-        // 清空关注应用信息
-        db.set('user.follows', []).write();
       }
     },
     methods: {

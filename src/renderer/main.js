@@ -2,7 +2,7 @@ import Vue from 'vue';
 import axios from 'axios';
 import ElementUI from 'element-ui';
 // import 'element-ui/lib/theme-chalk/index.css';
-
+import directive from 'element-ui/packages/popover/src/directive';
 import db from '../dataStore';
 
 import App from './App';
@@ -16,6 +16,7 @@ import(`./themes/${theme}/index.css`);
 /* eslint-enable */
 
 if (!process.env.IS_WEB) Vue.use(require('vue-electron'));
+Vue.directive('popover', directive);
 Vue.use(ElementUI);
 
 Vue.prototype.$bus = new Vue();

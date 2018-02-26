@@ -59,7 +59,6 @@
 <script>
   import { mapGetters, mapMutations, mapActions } from 'vuex';
   import { ipcRenderer } from 'electron';
-  import db from '../../dataStore';
 
   export default {
     name: 'add-app',
@@ -80,13 +79,8 @@
       ])
     },
     beforeMount() {
-      // 临时获取缓存目录
-      const categories = db.get('app.categories').value();
-      this.setCategories(categories);
       // 获取远程的目录
-      this.fetchCategories().then((res) => {
-        // 将远程目录存储到本地
-        db.set('app.categories', res).write();
+      this.fetchCategories().then(() => {
         // 以分类的长度建立高亮数组
         const len = this.categories.length;
         if (len) {

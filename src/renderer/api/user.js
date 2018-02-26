@@ -1,12 +1,21 @@
 import service from '../utils/service';
 
-const register = (email, username, password) => service({
+const sendVerificationCode = (email) => service({
+  url: '/user/send_verification_code',
+  method: 'POST',
+  data: {
+    email
+  }
+});
+
+const register = (email, username, password, code) => service({
   url: '/user/register',
   method: 'POST',
   data: {
     email,
     username,
-    password
+    password,
+    code
   }
 });
 
@@ -55,6 +64,7 @@ const updateUserInfo = (username, email) => service({
 });
 
 export default {
+  sendVerificationCode,
   register,
   login,
   logout,

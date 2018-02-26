@@ -1,4 +1,5 @@
 import API from '../../api';
+import db from '../../../dataStore';
 
 const { getMenu, getArticleList, getArticle } = API;
 
@@ -8,6 +9,8 @@ const state = {
     title: '',
     url: ''
   },
+  // 应用是否打开过
+  opened: false,
   // 当前应用
   currentApp: {},
   // 文章列表
@@ -22,9 +25,17 @@ const state = {
   routeHistory: []
 };
 
+const getters = {
+  opened: state => (state.opened ? state.opened : db.get('app.opened').value())
+};
+
 const mutations = {
   setMenu(state, menu) {
     state.menu = menu || [];
+  },
+  setOpenStatus(state, status) {
+    state.opened = status;
+    db.set('app.opened', status).write();
   },
   setCurrentApp(state, app) {
     state.currentApp = app;
@@ -88,6 +99,7 @@ const actions = {
 
 export default {
   state,
+  getters,
   mutations,
   actions,
 };
