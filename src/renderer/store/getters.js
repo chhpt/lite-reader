@@ -6,9 +6,7 @@ const getters = {
   activeItem: state => state.app.activeItem,
   loading: state => state.app.loading,
   routeHistory: state => state.app.routeHistory,
-  categories: state => state.categories.categories,
   apps: state => state.categories.apps,
-  followAPPs: state => state.user.followAPPs,
 };
 
 export default getters;

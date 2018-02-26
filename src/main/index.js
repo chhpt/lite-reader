@@ -14,28 +14,28 @@ let menu;
 const winURL = process.env.NODE_ENV === 'development'
   ? 'http://localhost:9080/#'
   : `file://${__dirname}/index.html#`;
-// 设置界面
-const settingWinURL = process.env.NODE_ENV === 'development'
-  ? 'http://localhost:9080/#manage'
-  : `file://${__dirname}/index.html#manage`;
 
-// 创建设置窗口
-const createSettingWindow = () => {
-  const options = {
-    height: 600,
-    width: 800,
-    center: true,
-    // resizable: false,
-    backgroundColor: '#fff',
+
+// 创建新窗口
+const createNewWindow = (url, option) => {
+  const defaultOption = {
+    height: 700,
+    width: 960,
+    show: false,
     title: 'LiteReader',
+    center: true,
+    backgroundColor: '#fff',
     titleBarStyle: 'hiddenInset',
     parent: mainWindow
   };
-  let settingWindow = new BrowserWindow(options);
-  settingWindow.loadURL(settingWinURL);
-  settingWindow.on('closed', () => {
-    settingWindow = null;
+  const options = Object.assign(defaultOption, option);
+  let newWindow = new BrowserWindow(options);
+  newWindow.on('closed', () => {
+    newWindow = null;
   });
+  newWindow.setMenu(menu);
+  newWindow.loadURL(`${winURL}${url}`);
+  return newWindow;
 };
 
 // 创建菜单
@@ -48,11 +48,26 @@ const createMenu = () => {
         {
           label: '账户与设置',
           click() {
-            createSettingWindow();
+            const newWindow = createNewWindow('/manage', {
+              width: 810,
+              height: 630
+            });
+            newWindow.once('ready-to-show', () => {
+              newWindow.show();
+            });
           }
         },
         {
-          label: '意见反馈'
+          label: '意见反馈',
+          click() {
+            const newWindow = createNewWindow('/feedback', {
+              width: 810,
+              height: 630
+            });
+            newWindow.once('ready-to-show', () => {
+              newWindow.show();
+            });
+          }
         },
         {
           label: '退出 LiteReader',
@@ -93,8 +108,8 @@ const createMenu = () => {
 // 创建主窗口
 const createWindow = () => {
   mainWindow = new BrowserWindow({
-    height: 700,
-    width: 1100,
+    height: 720,
+    width: 1080,
     title: 'LiteReader',
     useContentSize: true,
     backgroundColor: '#fff',
@@ -112,19 +127,7 @@ const createWindow = () => {
 ipcMain.on('new-window', (event, arg) => {
   if (arg.action === 'open') {
     const { url, app } = arg;
-    let newWindow = new BrowserWindow({
-      height: 700,
-      width: 900,
-      show: false,
-      backgroundColor: '#fff',
-      titleBarStyle: 'hidden'
-    });
-
-    newWindow.on('closed', () => {
-      newWindow = null;
-    });
-    newWindow.setMenu(null);
-    newWindow.loadURL(`${winURL}${url}`);
+    const newWindow = createNewWindow(url);
     newWindow.once('ready-to-show', () => {
       newWindow.show();
       setTimeout(() => {

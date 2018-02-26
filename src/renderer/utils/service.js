@@ -2,7 +2,8 @@ import axios from 'axios';
 import store from '../store';
 // import router from '../router';
 
-const baseURL = 'http://localhost:3000';
+const env = process.env.NODE_ENV;
+const baseURL = env === 'development' ? 'http://localhost:3000' : 'http://lite-api.whutdev.com';
 
 // 创建实例
 const service = axios.create({
