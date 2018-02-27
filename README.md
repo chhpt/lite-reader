@@ -2,17 +2,25 @@
 
 LiteReader 桌面端聚合阅读 APP
 
-查看应用的所有文章
+应用主界面
 
-![文章列表](http://markdown-1252710547.coscd.myqcloud.com/1_folder/%E5%B1%8F%E5%B9%95%E5%BF%AB%E7%85%A7%202018-02-12%20%E4%B8%8B%E5%8D%8816.35.50%20%E4%B8%8B%E5%8D%88.png)
+![应用](http://markdown-1252710547.coscd.myqcloud.com/1_folder/%E5%B1%8F%E5%B9%95%E5%BF%AB%E7%85%A7%202018-02-27%20%E4%B8%8B%E5%8D%8816.54.06%20%E4%B8%8B%E5%8D%88.png)
 
-搜索应用
+查看应用的文章列表
 
-![搜索应用](http://markdown-1252710547.coscd.myqcloud.com/1_folder/%E5%B1%8F%E5%B9%95%E5%BF%AB%E7%85%A7%202018-02-12%20%E4%B8%8B%E5%8D%8816.36.29%20%E4%B8%8B%E5%8D%88.png)
+![文章列表](http://markdown-1252710547.coscd.myqcloud.com/1_folder/%E5%B1%8F%E5%B9%95%E5%BF%AB%E7%85%A7%202018-02-27%20%E4%B8%8B%E5%8D%8816.54.46%20%E4%B8%8B%E5%8D%88.png)
 
 阅读文章
 
-![阅读文章](http://markdown-1252710547.coscd.myqcloud.com/1_folder/%E5%B1%8F%E5%B9%95%E5%BF%AB%E7%85%A7%202018-02-12%20%E4%B8%8B%E5%8D%8817.08.24%20%E4%B8%8B%E5%8D%88.png)
+![阅读文章](http://markdown-1252710547.coscd.myqcloud.com/1_folder/%E5%B1%8F%E5%B9%95%E5%BF%AB%E7%85%A7%202018-02-27%20%E4%B8%8B%E5%8D%8816.55.25%20%E4%B8%8B%E5%8D%88.png)
+
+搜索应用
+
+![搜索应用](http://markdown-1252710547.coscd.myqcloud.com/1_folder/%E5%B1%8F%E5%B9%95%E5%BF%AB%E7%85%A7%202018-02-27%20%E4%B8%8B%E5%8D%8816.55.43%20%E4%B8%8B%E5%8D%88.png)
+
+查看应用并关注应用
+
+![关注](http://markdown-1252710547.coscd.myqcloud.com/1_folder/%E5%B1%8F%E5%B9%95%E5%BF%AB%E7%85%A7%202018-02-27%20%E4%B8%8B%E5%8D%8816.56.13%20%E4%B8%8B%E5%8D%88.png)
 
 ## TODO
 
@@ -29,12 +37,15 @@ LiteReader 桌面端聚合阅读 APP
 目前需要结合[后台项目](https://github.com/chhpt/lite-reader-server)一起使用
 
 ``` bash
-# install dependencies
+# 克隆项目
+git clone https://github.com/chhpt/lite-reader.git
+
+# 进入项目目录
+cd lite-reader
+
+# 安装项目依赖（需要提前安装 yarn）
 yarn
 
-# serve with hot reload at localhost:9080
-yarn run dev
-
-# build electron application for production
+# 根据平台构建应用
 yarn run build
 ```
