@@ -83,6 +83,10 @@
 </script>
 
 <style lang="scss" scoped>
+  #setting {
+    padding: 1px;
+  }
+
   .setting-title {
     font-size: 2rem;
     margin: 2rem 0;

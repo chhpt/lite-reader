@@ -28,6 +28,7 @@ module.exports = {
     'import/no-extraneous-dependencies': 0,
     'no-new': 0,
     'arrow-body-style': 0,
+    'no-self-compare': 0,
     // allow debugger during development
     'no-debugger': process.env.NODE_ENV === 'production' ? 2 : 0
   }

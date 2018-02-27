@@ -14,7 +14,8 @@
 </template>
 
 <script>
-  import { mapGetters, mapActions } from 'vuex';
+  import { mapGetters, mapMutations, mapActions } from 'vuex';
+  import { ipcRenderer } from 'electron';
   import Split from 'split.js';
   import Aside from './layout/aside';
   import Main from './layout/main';
@@ -52,7 +53,7 @@
         }
       });
       // 账户存在，获取用户的应用列表
-      if (this.account.username) {
+      if (this.account.id) {
         this.fetchFollowAPPs().then((res) => {
           if (!res.status) {
             this.$message({
@@ -62,11 +63,22 @@
           }
         });
       }
+      ipcRenderer.on('synchronous-data-main', (event, args) => {
+        const { action, data } = args;
+        if (action === 'send-account' && !this.account.id) {
+          const { account } = data;
+          this.setAccount(account);
+          this.fetchFollowAPPs();
+        }
+      });
     },
     methods: {
       toggleSidebar() {
         this.sidebarStyle.width = this.close ? '8rem' : '18rem';
       },
+      ...mapMutations([
+        'setAccount'
+      ]),
       ...mapActions([
         'fetchFollowAPPs'
       ])

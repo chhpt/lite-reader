@@ -25,6 +25,7 @@
                        class="send-code"
                        @click="sendCode"
                        v-if="register"
+                       :disabled="verified"
                        slot="reference">发送验证码
             </el-button>
           </el-popover>
@@ -44,7 +45,7 @@
           <el-button type="primary" @click="handleAction">{{actionText}}</el-button>
         </div>
       </div>
-      <div class="intro-text" v-if="opened">
+      <div class="intro-text" v-if="!opened">
         请登录你的账号，使用全部功能。
         点击<span @click="redirection">跳过</span>直接体验。
       </div>
@@ -54,6 +55,7 @@
 
 <script>
   import { mapGetters, mapMutations, mapActions } from 'vuex';
+  import { ipcRenderer } from 'electron';
   import passwordEncrypt from '../utils/encrypt';
   import API from '../api';
 
@@ -63,6 +65,10 @@
     name: 'login',
     data() {
       return {
+        register: false,
+        registerText: '注册账号',
+        actionText: '登录',
+        verified: false,
         userForm: {
           email: '',
           username: '',
@@ -84,11 +90,7 @@
           code: [
             { required: true, message: '请输入验证码', trigger: 'blur' }
           ]
-        },
-        register: false,
-        registerText: '注册账号',
-        actionText: '登录',
-        firstOpen: true
+        }
       };
     },
     computed: {
@@ -96,10 +98,9 @@
         'opened'
       ])
     },
-    mounted() {
-      if (!this.opened) {
-        this.setOpenStatus(true);
-      }
+    beforeDestroy() {
+      // 设置已打开过应用
+      this.setOpenStatus(true);
     },
     methods: {
       toggleFunction() {
@@ -119,55 +120,103 @@
           });
           return;
         }
-        const res = await sendVerificationCode(email);
+        try {
+          /* eslint-disable no-useless-escape */
+          // 邮箱格式校验
+          const reg = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+          const valid = reg.test(email);
+          if (!valid) {
+            this.$message({
+              message: '邮箱格式错误',
+              type: 'error'
+            });
+            return;
+          }
+          this.verified = true;
+          const res = await sendVerificationCode(email);
+          if (res.status) {
+            this.$message('验证码发送成功，请查看你的邮箱');
+            this.verified = false;
+          } else {
+            this.$message({
+              type: 'error',
+              message: res.error
+            });
+            this.verified = false;
+          }
+        } catch (err) {
+          this.verified = false;
+        }
+      },
+      handleAction() {
+        this.$refs.userForm.validate((valid) => {
+          if (valid) {
+            // 注册
+            if (this.register) {
+              this.handleRegister();
+            }
+            // 登录
+            if (!this.register) {
+              this.handleLogin();
+            }
+          }
+        });
+      },
+      async handleLogin() {
+        const { email, password } = this.userForm;
+        // 对密码进行加密
+        const cipher = passwordEncrypt(password);
+        const res = await this.userLogin({ email, password: cipher.toString() });
         if (res.status) {
-          this.$message('验证码发送成功，请查看你的邮箱');
+          this.$message({
+            message: '登录成功！',
+            duration: '1000'
+          });
+          // 第一次打开直接登录
+          if (!this.opened) {
+            this.$router.push('/');
+          } else {
+            // 向主进程同步账号数据
+            ipcRenderer.send('synchronous-data-main', {
+              action: 'send-account',
+              data: {
+                account: res.account
+              }
+            });
+            // 从账号设置登录
+            this.$router.push('/manage/account');
+          }
         } else {
           this.$message({
-            type: 'error',
-            message: res.error
+            message: res.error,
+            type: 'error'
           });
         }
       },
-      async handleAction() {
-        // 注册
-        if (this.register) {
-          const { username, email, password, code } = this.userForm;
-          // 对密码进行加密
-          const cipher = passwordEncrypt(password);
-          const res = await this.userRegister({
-            username,
-            email,
-            code,
-            password: cipher.toString()
-          });
-          if (res.status) {
-            this.$message('注册成功！');
+      async handleRegister() {
+        const { username, email, password, code } = this.userForm;
+        // 对密码进行加密
+        const cipher = passwordEncrypt(password);
+        const res = await this.userRegister({
+          username,
+          email,
+          code,
+          password: cipher.toString()
+        });
+        if (res.status) {
+          this.$message('注册成功！');
+          // 第一次打开直接登录
+          if (!this.opened) {
+            this.$router.push('/');
           } else {
-            this.$message({
-              message: res.error,
-              type: 'error'
-            });
-          }
-        }
-        // 登录
-        if (!this.register) {
-          const { email, password } = this.userForm;
-          // 对密码进行加密
-          const cipher = passwordEncrypt(password);
-          const res = await this.userLogin({ email, password: cipher.toString() });
-          if (res.status) {
-            this.$message({
-              message: '登录成功！',
-              duration: '1000'
-            });
+            // 从账号设置登录
             this.$router.push('/manage/account');
-          } else {
-            this.$message({
-              message: res.error,
-              type: 'error'
-            });
           }
+        } else {
+          this.$message({
+            message: res.error,
+            type: 'error'
+          });
         }
       },
       ...mapMutations([

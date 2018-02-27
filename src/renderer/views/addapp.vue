@@ -30,7 +30,7 @@
         </el-aside>
         <el-main>
           <div class="app-list">
-            <div class="app" v-for="(app, index) in appList">
+            <div class="app" v-for="(app, index) in appList" :key="index">
               <img :src="app.imageURL" alt="图标">
               <div class="app-info">
                 <span @click="loadAppDetail(app)" class="app-name">
@@ -88,10 +88,13 @@
           this.highlight.fill(false);
           // 默认加载第一个分类
           this.highlight[0] = true;
+          this.loadAppList(0);
         }
       });
-      // 默认加载第一个分类
-      this.loadAppList(0);
+      if (this.categories) {
+        this.highlight[0] = true;
+        this.loadAppList(0);
+      }
     },
     watch: {
       categories(v) {
@@ -150,7 +153,7 @@
       },
       async handleFollowAPP(app) {
         // 没有登录，不能关注应用
-        if (!this.account) {
+        if (!this.account.id) {
           this.$message({
             message: '你尚未登录，不能进行操作',
             type: 'error'
@@ -176,7 +179,7 @@
       },
       async handleCancelFollow(app) {
         // 没有登录，不能取消关注应用
-        if (!this.account) {
+        if (!this.account.id) {
           this.$message({
             message: '你尚未登录，不能进行操作',
             type: 'error'
@@ -250,6 +253,7 @@
     }
     .el-aside {
       overflow-y: auto;
+      box-shadow: 1px 1px 2px 1px rgba(0, 0, 0, 0.1);
     }
     .el-aside::-webkit-scrollbar {
       background: transparent;

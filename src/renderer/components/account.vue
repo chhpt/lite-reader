@@ -63,6 +63,7 @@
                :visible.sync="settingDialogVisible"
                :modal="false"
                fullscreen
+               @close="handleSettingDialogClose"
                class="setting-dialog">
       <!--表单-->
       <el-form :model="editAccount"
@@ -116,11 +117,11 @@
         },
         checkRules: {
           email: [
-            { required: true, message: '请输入邮箱', trigger: 'blur' },
+            { required: false, message: '请输入邮箱', trigger: 'blur' },
             { type: 'email', message: '请输入正确的邮箱地址', trigger: 'blur' }
           ],
           username: [
-            { required: true, message: '请输入你的用户名', trigger: 'blur' }
+            { required: false, message: '请输入你的用户名', trigger: 'blur' }
           ],
         },
       };
@@ -134,8 +135,11 @@
     methods: {
       // 向主进程同步关注应用
       sendFollowAPPs(apps) {
-        ipcRenderer.send('follow-action', {
-          apps
+        ipcRenderer.send('synchronous-data-main', {
+          action: 'send-follow-apps',
+          data: {
+            apps
+          }
         });
       },
       handleClick(tab) {
@@ -152,6 +156,12 @@
             // 获取关注的应用
             if (this.followAPPs.length) {
               this.list = this.followAPPs;
+            } else {
+              this.fetchFollowAPPs().then((res) => {
+                if (res.status) {
+                  this.list = res.apps;
+                }
+              });
             }
             break;
           default:
@@ -159,7 +169,7 @@
       },
       async handleCancelFollow(app) {
         // 没有登录，不能取消关注应用
-        if (!this.account) {
+        if (!this.account.id) {
           this.$message({
             message: '你尚未登录，不能进行操作',
             type: 'error'
@@ -190,13 +200,14 @@
             });
             this.$router.push('/manage');
           }
+          this.sendFollowAPPs([]);
           this.accountDialogVisible = false;
         });
       },
       // 编辑个人信息（点击设置图标）
       editSetting() {
-        this.settingDialogVisible = true;
         this.editAccount = Object.assign({}, this.account);
+        this.settingDialogVisible = true;
       },
       edit(data) {
         this.$refs[data].focus();
@@ -207,7 +218,7 @@
         this[`${data}Editing`] = false;
       },
       saveSetting(data) {
-        // 更新本地的数据
+        // 保存设置，更新数据
         this.changeUserInfo({
           [data]: this.editAccount[data]
         }).then((res) => {
@@ -216,8 +227,14 @@
               message: '更新成功',
               duration: '1000'
             });
+            this.usernameEditing = false;
+            this.emailEditing = false;
           }
         });
+      },
+      handleSettingDialogClose() {
+        this.usernameEditing = false;
+        this.emailEditing = false;
       },
       getCollection() {
       },
@@ -226,7 +243,8 @@
       ...mapActions([
         'userLogout',
         'changeUserInfo',
-        'cancelUserFollowAPP'
+        'cancelUserFollowAPP',
+        'fetchFollowAPPs'
       ])
     },
     components: {
@@ -337,9 +355,6 @@
 
   .account-form {
     width: 80%;
-    .el-form-item {
-      margin-bottom: 1rem;
-    }
     .el-form-item__content {
       display: flex;
     }

@@ -14,7 +14,7 @@ router.beforeEach((to, from, next) => {
 router.beforeEach((to, from, next) => {
   if (to.path === '/manage/account') {
     const account = db.get('user.account').value();
-    if (account.username) {
+    if (account.id) {
       next();
     } else {
       bus.$emit('manage-message', '你尚未登录，请先登录你的账号!');

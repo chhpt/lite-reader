@@ -92,25 +92,50 @@
       });
     },
     filters: {
-      formatTime(v) {
-        const current = new Date();
-        const republic = new Date(v * 1000);
-        const year = republic.getFullYear();
-        const day = republic.getDate() < 10 ? `0${republic.getDate()}` : republic.getDate();
-        const month = republic.getMonth() + 1 < 10 ? `0${republic.getMonth() + 1}` : republic.getMonth() + 1;
-        const hour = republic.getHours() < 10 ? `0${republic.getHours()}` : republic.getHours();
-        const minute = republic.getMinutes() < 10 ? `0${republic.getMinutes()}` : republic.getMinutes();
-        if (current.getFullYear() === republic.getFullYear()) {
-          return `${month}-${day} ${hour}:${minute}`;
+      formatTime(time) {
+        // 文字
+        if (Number(time) !== Number(time)) {
+          return time;
         }
-        return `${year}-${month}-${day} ${hour}:${minute}`;
+        const now = Date.now();
+        const past = parseInt(now / 1000, 10) - time;
+        switch (true) {
+          case past < 3600: {
+            const t = parseInt(past / 60, 10);
+            return `${t !== 0 ? t : t + 1} 分钟前`;
+          }
+          case past < 86400: {
+            const t = parseInt(past / 3600, 10);
+            return `${t !== 0 ? t : t + 1} 小时前`;
+          }
+          default: {
+            const t = parseInt(past / 86400, 10);
+            return `${t !== 0 ? t : t + 1} 天前`;
+          }
+        }
+        // const current = new Date();
+        // const republic = new Date(v * 1000);
+        // const year = republic.getFullYear();
+        // const day = republic.getDate() < 10 ? `0${republic.getDate()}` : republic.getDate();
+        // const month = republic.getMonth() + 1 < 10 ?
+        // `0${republic.getMonth() + 1}` : republic.getMonth() + 1;
+        // const hour = republic.getHours() < 10 ? `0${republic.getHours()}` : republic.getHours();
+        // const minute = republic.getMinutes() < 10 ?
+        // `0${republic.getMinutes()}` : republic.getMinutes();
+        // if (current.getFullYear() === republic.getFullYear()) {
+        //   return `${month}-${day} ${hour}:${minute}`;
+        // }
+        // return `${year}-${month}-${day} ${hour}:${minute}`;
       }
     },
     methods: {
       // 向主进程同步关注应用
       sendFollowAPPs(apps) {
-        ipcRenderer.send('follow-action', {
-          apps
+        ipcRenderer.send('synchronous-data-main', {
+          action: 'send-follow-apps',
+          data: {
+            apps
+          }
         });
       },
       // 点击文章加载文章内容
@@ -159,7 +184,7 @@
       },
       async handleFollowAPP(app) {
         // 没有登录，不能关注应用
-        if (!this.account) {
+        if (!this.account.id) {
           this.$message({
             message: '你尚未登录，不能进行操作',
             type: 'error'
@@ -181,7 +206,7 @@
       },
       async handleCancelFollow(app) {
         // 没有登录，不能取消关注应用
-        if (!this.account) {
+        if (!this.account.id) {
           this.$message({
             message: '你尚未登录，不能进行操作',
             type: 'error'
@@ -202,7 +227,8 @@
         }
       },
       ...mapMutations([
-        'setCurrentApp'
+        'setCurrentApp',
+        'setArticle'
       ]),
       ...mapActions([
         'fetchArticleList',

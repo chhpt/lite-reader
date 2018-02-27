@@ -47,9 +47,12 @@
       }
     },
     mounted() {
-      ipcRenderer.on('follow-apps', (event, args) => {
-        const { apps } = args;
-        this.setFollowAPPs(apps);
+      ipcRenderer.on('synchronous-data-main', (event, args) => {
+        const { action, data } = args;
+        if (action === 'send-follow-apps') {
+          const { apps } = data;
+          this.setFollowAPPs(apps);
+        }
       });
     },
     methods: {

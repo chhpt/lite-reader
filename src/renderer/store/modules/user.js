@@ -38,8 +38,8 @@ const getters = {
 const mutations = {
   // 在 mutation 里对本地数据进行更改
   setAccount(state, account) {
-    state.account = account;
-    db.set('user.account', account).write();
+    state.account = account || {};
+    db.set('user.account', account || {}).write();
   },
   setFollowAPPs(state, followAPPs) {
     state.followAPPs = followAPPs || [];
@@ -54,21 +54,21 @@ const mutations = {
 const actions = {
   async userRegister({ commit }, payload) {
     const { email, password, username, code } = payload;
-    const user = await register(email, username, password, code);
-    if (user.id) {
-      commit('setAccount', { email, username });
+    const res = await register(email, username, password, code);
+    if (res.status) {
+      const { account } = res;
+      commit('setAccount', account);
     }
-    return user;
+    return res;
   },
   async userLogin({ commit }, payload) {
     const { email, password } = payload;
-    const user = await login(email, password);
-    if (user.id) {
-      const { username, id } = user;
-      const account = { email, username, id };
+    const res = await login(email, password);
+    if (res.status) {
+      const { account } = res;
       commit('setAccount', account);
     }
-    return user;
+    return res;
   },
   async userLogout({ commit }) {
     const res = await logout();

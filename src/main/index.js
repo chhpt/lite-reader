@@ -10,11 +10,11 @@ if (process.env.NODE_ENV !== 'development') {
 
 let mainWindow;
 let menu;
+
 // 主窗口
 const winURL = process.env.NODE_ENV === 'development'
   ? 'http://localhost:9080/#'
   : `file://${__dirname}/index.html#`;
-
 
 // 创建新窗口
 const createNewWindow = (url, option) => {
@@ -48,7 +48,7 @@ const createMenu = () => {
         {
           label: '账户与设置',
           click() {
-            const newWindow = createNewWindow('/manage', {
+            const newWindow = createNewWindow('manage', {
               width: 810,
               height: 630
             });
@@ -137,11 +137,18 @@ ipcMain.on('new-window', (event, arg) => {
   }
 });
 
+// 向主窗口同步数据
+ipcMain.on('synchronous-data-main', (event, arg) => {
+  const { action, data } = arg;
+  mainWindow.webContents.send('synchronous-data-main', { action, data });
+});
+
 ipcMain.on('follow-action', (event, arg) => {
   const { apps } = arg;
   mainWindow.webContents.send('follow-apps', { apps });
 });
 
+// 重启应用
 ipcMain.on('relaunch-app', () => {
   app.relaunch({ args: process.argv.slice(1).concat(['--relaunch']) });
   app.exit(0);
