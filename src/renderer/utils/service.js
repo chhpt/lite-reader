@@ -9,7 +9,7 @@ const baseURL = env === 'development' ? 'http://localhost:3000' : 'http://lite-a
 const service = axios.create({
   baseURL,
   withCredentials: true,
-  // timeout: 10000
+  timeout: 10000
 });
 
 // 添加一个请求拦截器
@@ -36,6 +36,9 @@ service.interceptors.response.use(response => response.data, (error) => {
   } else if (error.message.indexOf('timeout') > -1) {
     // 请求超时
     store.commit('setLoading', false);
+    new Notification('警告', {
+      body: '请求超时！'
+    });
     return Promise.reject('请求超时，请重试');
   } else if (error.message === 'Network Error') {
     // 网络错误
