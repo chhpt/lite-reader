@@ -1,42 +1,35 @@
 <template>
-  <div id="article-list">
-    <el-container class="is-vertical">
-      <!--栏目-->
-      <Header :backIcon="false" :menu="menu" @handleTabClick="handleTabClick"></Header>
-      <el-main id="articles">
-        <!--文章列表-->
-        <el-card v-for="article in articleList" :body-style="cardStyle" :key="article.id" class="article">
-          <div class="article-info">
-            <div class="article-title" @click="loadArticle(article)">
-              {{article.title}}
-            </div>
-            <div class="article-intro">
-              {{article.summary}}
-            </div>
-          </div>
-          <div class="right">
-            <div class="image-wrapper" v-if="article.image">
-              <img :src="article.image" alt="文章图片" v-if="article.image">
-            </div>
-          </div>
-        </el-card>
-        <!--有文章时才显示加载更多-->
-        <div class="load-more" v-if="articleList.length">
-          <el-button plain :loading="loading" @click="loadMoreArticles">
-            加载更多
-          </el-button>
+  <div id="list">
+    <!--列表-->
+    <el-card v-for="article in articleList" :body-style="cardStyle" :key="article.id" class="article">
+      <div class="article-info">
+        <div class="article-title" @click="loadArticle(article)">
+          {{article.title}}
         </div>
-      </el-main>
-    </el-container>
+        <div class="article-intro">
+          {{article.summary}}
+        </div>
+      </div>
+      <div class="right">
+        <div class="image-wrapper" v-if="article.image">
+          <img :src="article.image" alt="文章图片" v-if="article.image">
+        </div>
+      </div>
+    </el-card>
+    <!--有文章时才显示加载更多-->
+    <div class="load-more" v-if="articleList.length">
+      <el-button plain :loading="loading" @click="loadMoreArticles">
+        加载更多
+      </el-button>
+    </div>
   </div>
 </template>
 <script>
   import { mapGetters, mapActions, mapMutations } from 'vuex';
   import ScrollReveal from 'scrollreveal';
-  import Header from '../components/header';
 
   export default {
-    name: 'articleList',
+    name: 'list',
     data() {
       return {
         page: 1,
@@ -52,7 +45,6 @@
     },
     computed: {
       ...mapGetters([
-        'menu',
         'currentApp',
         'articleList',
         'activeItem'
@@ -62,7 +54,7 @@
       articleList(v) {
         if (v.length) {
           this.$nextTick(() => {
-            const container = document.querySelector('#articles');
+            const container = document.querySelector('#list');
             this.scrollReveal.reveal('.article', {
               container,
               duration: 500
@@ -72,24 +64,6 @@
       }
     },
     methods: {
-      // 切换栏目
-      async handleTabClick(tab) {
-        this.setLoading(true);
-        this.setActiveItem(this.menu[tab.index]);
-        const { type, appId, remoteid } = this.currentApp;
-        const { name } = this.activeItem;
-        try {
-          await this.fetchArticleList({
-            type,
-            appId,
-            column: type ? name : remoteid
-          });
-        } catch (err) {
-          this.setLoading(false);
-          throw new Error(err);
-        }
-        this.setLoading(false);
-      },
       // 加载文章
       async loadArticle(article) {
         this.setLoading(true);
@@ -140,26 +114,17 @@
         'setActiveItem'
       ]),
       ...mapActions([
-        'fetchArticleList',
         'fetchMoreArticles',
         'fetchArticle'
       ])
-    },
-    components: {
-      Header
     }
   };
 </script>
 <style lang="scss" scoped>
-  #article-list,
-  .el-container {
-    position: relative;
+  #list {
     height: 100%;
     width: 100%;
-  }
-
-  #article-list .el-main {
-    height: calc(100% - 50px);
+    overflow: auto;
     &::-webkit-scrollbar {
       background: transparent;
       width: 0.4rem;
