@@ -60,10 +60,14 @@
   }
 
   #app {
-    /*padding-top: 4rem;*/
     width: 100%;
     height: 100%;
     font-size: 1.6rem !important;
     color: #303133;
+  }
+
+  .el-popover {
+    padding: 1rem !important;
+    min-width: 8rem !important;
   }
 </style>

@@ -4,9 +4,17 @@
     <div class="drag-area"></div>
     <div class="app-wrapper">
       <div v-for="app in followAPPs" class="app">
-        <img :src="app.imageURL" @click="getAppMenu(app)" alt="图标">
-        <span @click="getAppMenu(app)" class="app-name" v-if="!close">
-          {{app.title}}
+        <el-popover
+            placement="right"
+            width="80"
+            trigger="hover"
+            :content="app.title"
+            v-if="close">
+          <img :src="app.imageURL" @click="getAppMenu(app, $event)" alt="图标" slot="reference">
+        </el-popover>
+        <img :src="app.imageURL" @click="getAppMenu(app, $event)" alt="图标" v-if="!close">
+        <span @click="getAppMenu(app, $event)" class="app-name" v-if="!close">
+            {{app.title}}
         </span>
       </div>
       <div v-if="!followAPPs.length" class="no-apps-waring">
@@ -65,7 +73,16 @@
       loadAddWindow() {
         this.$router.push('/addapp');
       },
-      async getAppMenu(app) {
+      async getAppMenu(app, e) {
+        // 设置选择应用的背景
+        const { parentNode } = e.target.parentNode.className ? e.target : e.target.parentNode;
+        const attr = parentNode.getAttribute('class');
+        if (document.querySelector('.app.active')) {
+          document.querySelector('.app.active').setAttribute('class', 'app');
+        }
+        parentNode.setAttribute('class', `${attr} active`);
+
+        // 加载选择应用的栏目，并加载第一个栏目的文章列表
         const { type, appId, remoteid } = app;
         this.setLoading(true);
         // 设置应用名称
@@ -105,7 +122,7 @@
     height: 100%;
     .drag-area {
       width: 100%;
-      height: 4rem;
+      height: 3rem;
       /*窗口拖拽*/
       -webkit-app-region: drag;
     }
@@ -114,6 +131,7 @@
   .app-wrapper {
     height: calc(100% - 8rem);
     overflow: auto;
+    padding-top: 1rem;
     border-bottom: 1px solid #ccc;
     .no-apps-waring {
       margin: 4rem 2rem;
@@ -149,7 +167,14 @@
     align-items: center;
     justify-items: center;
     height: 6rem;
+    &.active {
+      /*box-shadow: 0 2px 12px 2px rgba(0, 0, 0, .1);*/
+      img {
+        box-shadow: 0 2px 8px 2px rgba(0, 0, 0, .3);
+      }
+    }
     img {
+      outline: none;
       width: 4rem;
       height: 4rem;
       margin: 1rem 1rem 1rem 2rem;
