@@ -11,6 +11,8 @@ Vue.use(Router);
 const Index = r => require.ensure([], () => r(require('@/views/index')), 'index');
 const AddApp = r => require.ensure([], () => r(require('@/views/addapp')), 'addapp');
 const Login = r => require.ensure([], () => r(require('@/views/login')), 'login');
+const ArticleList = r => require.ensure([], () => r(require('@/views/articleList')), 'articlelist');
+
 
 // 新窗口
 const AppDetail = r => require.ensure([], () => r(require('@/views/window/appDetail')), 'appdetail');
@@ -18,7 +20,6 @@ const Manage = r => require.ensure([], () => r(require('@/views/window/manage'))
 const Feedback = r => require.ensure([], () => r(require('@/views/window/feedback')), 'feedback');
 
 // 组件
-const ArticleList = r => require.ensure([], () => r(require('@/components/articleList')), 'articleList');
 const Reader = r => require.ensure([], () => r(require('@/components/reader')), 'reader');
 const Account = r => require.ensure([], () => r(require('@/components/account')), 'account');
 const Setting = r => require.ensure([], () => r(require('@/components/setting')), 'setting');

@@ -21,7 +21,22 @@
       <div class="article-list"
            v-loading="loading"
            element-loading-text="精彩内容马上来到...">
-        <div class="article" v-for="article in articleList">
+        <el-card v-for="article in list" :body-style="cardStyle" :key="article.id" class="article">
+          <div class="article-info">
+            <div class="article-title" @click="loadArticle(article)">
+              {{article.title}}
+            </div>
+            <div class="article-intro">
+              {{article.summary}}
+            </div>
+          </div>
+          <div class="right">
+            <div class="image-wrapper" v-if="article.image">
+              <img :src="article.image" alt="文章图片" v-if="article.image">
+            </div>
+          </div>
+        </el-card>
+        <div class="article" v-for="article in list">
           <div class="article-info">
             <div class="article-title" @click="loadArticle(article)">
               {{article.title}}
@@ -37,7 +52,7 @@
           </div>
         </div>
         <!--有文章时才显示加载更多-->
-        <div class="load-more" v-if="articleList.length">
+        <div class="load-more" v-if="list.length">
           <el-button plain :loading="loadingMore" @click="loadMoreArticles">
             加载更多
           </el-button>
@@ -63,14 +78,14 @@
     },
     computed: {
       ...mapGetters([
-        'articleList',
+        'list',
         'currentApp',
         'account',
         'activeItem'
       ])
     },
     created() {
-      if (this.articleList.length) {
+      if (this.list.length) {
         this.loading = false;
         return;
       }
@@ -165,7 +180,7 @@
         this.loadingMore = true;
         // 最后一篇文章的 id
         this.page = this.page + 1;
-        const { id } = this.articleList[this.articleList.length - 1];
+        const { id } = this.list[this.list.length - 1];
         const { type, appId, remoteid } = this.currentApp;
         const { name } = this.activeItem;
         try {
