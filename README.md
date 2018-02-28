@@ -34,7 +34,7 @@ LiteReader 桌面端聚合阅读 APP
 
 ## 构建步骤
 
-目前需要结合[后台项目](https://github.com/chhpt/lite-reader-server)一起使用
+目前需要结合后台项目一起使用
 
 ``` bash
 # 克隆项目

@@ -67,7 +67,7 @@
     align-items: center;
     background: #fff;
     box-shadow: 2px 2px 12px rgba(0, 0, 0, 0.1);
-    z-index: 0;
+    z-index: 1;
     /*窗口拖拽*/
     -webkit-app-region: drag;
   }
