@@ -1,7 +1,5 @@
 <template>
   <div id='app'>
-    <div class="bar" :style="{backgroundColor: barBackground}">
-    </div>
     <router-view></router-view>
   </div>
 </template>
@@ -62,26 +60,10 @@
   }
 
   #app {
-    padding-top: 4rem;
+    /*padding-top: 4rem;*/
     width: 100%;
     height: 100%;
     font-size: 1.6rem !important;
     color: #303133;
-  }
-
-  .bar {
-    position: fixed;
-    display: flex;
-    align-items: center;
-    top: 0;
-    width: 100%;
-    height: 4rem;
-    z-index: 100;
-    /*窗口拖拽*/
-    -webkit-app-region: drag;
-    i {
-      color: #fff;
-      margin-left: 12rem;
-    }
   }
 </style>

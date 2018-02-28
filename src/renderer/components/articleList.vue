@@ -1,17 +1,9 @@
 <template>
   <div id="article-list">
-    <el-container>
+    <el-container class="is-vertical">
       <!--栏目-->
-      <el-header height="50px">
-        <el-tabs v-model="active"
-                 @tab-click="handleTabClick"
-                 tab-position="bottom">
-          <el-tab-pane v-for="item in menu" :label="item.title" :name="item.title" :url="item.url" :key="item.title"
-                       class="menu-item">
-          </el-tab-pane>
-        </el-tabs>
-      </el-header>
-      <el-main>
+      <Header :backIcon="false" :menu="menu" @handleTabClick="handleTabClick"></Header>
+      <el-main id="articles">
         <!--文章列表-->
         <el-card v-for="article in articleList" :body-style="cardStyle" :key="article.id" class="article">
           <div class="article-info">
@@ -40,45 +32,50 @@
 </template>
 <script>
   import { mapGetters, mapActions, mapMutations } from 'vuex';
+  import ScrollReveal from 'scrollreveal';
+  import Header from '../components/header';
 
   export default {
     name: 'articleList',
     data() {
       return {
         page: 1,
-        active: undefined,
+        scrollReveal: new ScrollReveal({ reset: true }),
         cardStyle: {
           display: 'flex',
           justifyContent: 'space-between',
           height: '100%',
-          padding: '15px'
+          padding: '15px',
         },
         loading: false
       };
     },
-    mounted() {
-      this.active = this.activeItem.title;
-    },
-    watch: {
-      activeItem(newValue) {
-        this.active = newValue.title;
-      }
-    },
     computed: {
       ...mapGetters([
-        'activeItem',
         'menu',
         'currentApp',
-        'articleList'
+        'articleList',
+        'activeItem'
       ])
+    },
+    watch: {
+      articleList(v) {
+        if (v.length) {
+          this.$nextTick(() => {
+            const container = document.querySelector('#articles');
+            this.scrollReveal.reveal('.article', {
+              container,
+              duration: 500
+            });
+          });
+        }
+      }
     },
     methods: {
       // 切换栏目
       async handleTabClick(tab) {
-        // 设置激活栏目
-        this.active = this.activeItem.title;
-        this.setActiveItem(this.menu[tab.index]);
         this.setLoading(true);
+        this.setActiveItem(this.menu[tab.index]);
         const { type, appId, remoteid } = this.currentApp;
         const { name } = this.activeItem;
         try {
@@ -122,7 +119,7 @@
         // 最后一篇文章的 id
         const id = this.articleList[this.articleList.length - 1].id;
         const { type, appId, remoteid } = this.currentApp;
-        const { name } = this.activeItem;
+        const { name } = this.activeItem.name ? this.activeItem : this.menu[0];
         try {
           await this.fetchMoreArticles({
             type,
@@ -139,18 +136,21 @@
       },
       ...mapMutations([
         'setLoading',
-        'setActiveItem',
-        'setArticle'
+        'setArticle',
+        'setActiveItem'
       ]),
       ...mapActions([
         'fetchArticleList',
         'fetchMoreArticles',
         'fetchArticle'
       ])
+    },
+    components: {
+      Header
     }
   };
 </script>
-<style lang="scss">
+<style lang="scss" scoped>
   #article-list,
   .el-container {
     position: relative;
@@ -158,17 +158,7 @@
     width: 100%;
   }
 
-  .el-header {
-    position: sticky;
-    display: flex;
-    justify-content: center;
-    top: 0;
-    width: 100%;
-    background: #fff;
-    box-shadow: 2px 2px 12px rgba(0, 0, 0, 0.1);
-  }
-
-  .el-main {
+  #article-list .el-main {
     height: calc(100% - 50px);
     &::-webkit-scrollbar {
       background: transparent;
@@ -184,14 +174,6 @@
     }
   }
 
-  .el-tabs {
-    height: 5rem;
-    max-width: 100%;
-    .el-tabs__header {
-      margin-top: 0 !important;
-    }
-  }
-
   .article {
     width: 80%;
     min-width: 50rem;
@@ -203,10 +185,8 @@
       margin-left: 3rem;
     }
     .image-wrapper {
-      height: 11rem;
       width: 18rem;
       img {
-        max-height: 11rem;
         max-width: 18rem;
       }
     }

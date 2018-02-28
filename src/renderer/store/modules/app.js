@@ -4,15 +4,14 @@ import db from '../../../dataStore';
 const { getMenu, getArticleList, getArticle } = API;
 
 const state = {
-  // 当前栏目
-  activeItem: {
-    title: '',
-    url: ''
-  },
   // 应用是否打开过
   opened: false,
   // 当前应用
   currentApp: {},
+  // 选中的栏目（在阅读文章切换路由时记录原选项卡）
+  activeItem: {
+    title: ''
+  },
   // 文章列表
   articleList: [],
   // 栏目列表
@@ -33,6 +32,9 @@ const mutations = {
   setMenu(state, menu) {
     state.menu = menu || [];
   },
+  setActiveItem(state, item) {
+    state.activeItem = item;
+  },
   setOpenStatus(state, status) {
     state.opened = status;
     db.set('app.opened', status).write();
@@ -45,9 +47,6 @@ const mutations = {
   },
   setArticle(state, article) {
     state.article = article;
-  },
-  setActiveItem(state, item) {
-    state.activeItem = item;
   },
   setLoading(state, loading) {
     state.loading = loading;

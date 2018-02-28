@@ -1,9 +1,7 @@
 <template>
   <div id="reader">
-    <el-container>
-      <el-header height="50px">
-        <i class="el-icon-arrow-left" @click="back"></i>
-      </el-header>
+    <el-container class="is-vertical">
+      <Header :backIcon="true" @back="back"></Header>
       <el-main>
         <div class="article">
           <div class="article-title">
@@ -25,6 +23,7 @@
 
 <script>
   import { mapGetters } from 'vuex';
+  import Header from './header';
 
   export default {
     name: 'reader',
@@ -42,6 +41,9 @@
         'article',
         'routeHistory'
       ])
+    },
+    components: {
+      Header
     }
   };
 </script>
@@ -59,23 +61,9 @@
     line-height: 3.5rem;
   }
 
-  .el-header {
-    position: sticky;
-    top: 0;
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    width: 100%;
-    box-shadow: 2px 0 12px rgba(0, 0, 0, 0.1);
-    background: #fff;
-    i {
-      font-size: 2rem;
-      cursor: pointer;
-    }
-  }
-
   .el-main {
     height: calc(100% - 5rem);
+    overflow-x: hidden;
     &::-webkit-scrollbar {
       background: transparent;
       width: 0.4rem;
