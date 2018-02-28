@@ -55,6 +55,7 @@
   .el-menu {
     height: 100%;
     width: 100%;
+    border: 0;
   }
 
   .el-main {
@@ -71,7 +72,8 @@
   }
 
   .el-aside {
+    padding-top: 4rem;
+    border-right: solid 1px #e6e6e6;
     overflow: hidden;
   }
-
 </style>

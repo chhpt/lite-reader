@@ -1,5 +1,7 @@
 <template>
   <div id="c-aside">
+    <!--拖拽窗口-->
+    <div class="drag-area"></div>
     <div class="app-wrapper">
       <div v-for="app in followAPPs" class="app">
         <img :src="app.imageURL" @click="getAppMenu(app)" alt="图标">
@@ -68,13 +70,12 @@
         this.setLoading(true);
         // 设置应用名称
         this.setCurrentApp(app);
+        this.setActiveItem({});
         // 获取栏目列表
         const menu = await this.fetchMenu({
           appId,
           type
         });
-        // 默认直接加载第一个栏目的文章
-        this.setActiveItem(menu[0]);
         await this.fetchArticleList({
           type,
           appId,
@@ -86,9 +87,9 @@
       },
       ...mapMutations([
         'setCurrentApp',
-        'setActiveItem',
         'setLoading',
         'setMenu',
+        'setActiveItem',
         'setFollowAPPs'
       ]),
       ...mapActions([
@@ -102,11 +103,17 @@
 <style lang="scss" scoped>
   #c-aside {
     height: 100%;
+    .drag-area {
+      width: 100%;
+      height: 4rem;
+      /*窗口拖拽*/
+      -webkit-app-region: drag;
+    }
   }
 
   .app-wrapper {
-    height: calc(100% - 4rem);
-    overflow-y: scroll;
+    height: calc(100% - 8rem);
+    overflow: auto;
     border-bottom: 1px solid #ccc;
     .no-apps-waring {
       margin: 4rem 2rem;
