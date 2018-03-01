@@ -84,6 +84,8 @@ const actions = {
     if (res.status) {
       const { account } = res;
       commit('setAccount', account);
+    } else if (res.expired) {
+      commit('setAccount', {});
     }
     return res;
   },
@@ -92,6 +94,8 @@ const actions = {
     const { apps } = res;
     if (res.status) {
       commit('setFollowAPPs', apps);
+    } else if (res.expired) {
+      commit('setAccount', {});
     }
     return res;
   },
@@ -102,6 +106,8 @@ const actions = {
     if (res.status) {
       const { apps } = res;
       commit('setFollowAPPs', apps);
+    } else if (res.expired) {
+      commit('setAccount', {});
     }
     return res;
   },
@@ -112,6 +118,8 @@ const actions = {
     if (res.status) {
       const { apps } = res;
       commit('setFollowAPPs', apps);
+    } else if (res.expired) {
+      commit('setAccount', {});
     }
     return res;
   }

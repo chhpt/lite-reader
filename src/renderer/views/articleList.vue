@@ -71,24 +71,11 @@
 <style lang="scss" scoped>
   #article-list,
   .el-container {
-    position: relative;
     height: 100%;
     width: 100%;
   }
 
   #article-list .el-main {
     height: calc(100% - 50px);
-    &::-webkit-scrollbar {
-      background: transparent;
-      width: 0.4rem;
-    }
-    &:hover::-webkit-scrollbar-track {
-      -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.1);
-    }
-
-    &:hover::-webkit-scrollbar-thumb {
-      -webkit-box-shadow: inset 0 0 6px #6f7180;
-      border-radius: 0.2rem;
-    }
   }
 </style>

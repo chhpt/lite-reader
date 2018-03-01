@@ -161,6 +161,7 @@
                 if (res.status) {
                   this.list = res.apps;
                 }
+                this.sendFollowAPPs(res.apps);
               });
             }
             break;

@@ -129,7 +129,7 @@
   }
 
   .app-wrapper {
-    height: calc(100% - 8rem);
+    height: calc(100% - 7rem);
     overflow: auto;
     padding-top: 1rem;
     border-bottom: 1px solid #ccc;

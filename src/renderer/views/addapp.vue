@@ -14,7 +14,8 @@
           clearable>
       </el-autocomplete>
     </div>
-    <div class="all-apps">
+    <AnimateDot :loading="loading" v-if="!appList.length"></AnimateDot>
+    <div class="all-apps" v-if="appList.length">
       <el-container class="container">
         <el-aside width="160px">
           <div class="categories">
@@ -59,6 +60,7 @@
 <script>
   import { mapGetters, mapMutations, mapActions } from 'vuex';
   import { ipcRenderer } from 'electron';
+  import AnimateDot from '../components/animatedot';
 
   export default {
     name: 'add-app',
@@ -67,6 +69,7 @@
         keywords: '',
         highlight: [],
         appList: [],
+        loading: true
       };
     },
     computed: {
@@ -89,6 +92,7 @@
           // 默认加载第一个分类
           this.highlight[0] = true;
           this.loadAppList(0);
+          this.loading = false;
         }
       });
       if (this.categories) {
@@ -219,6 +223,9 @@
         'userFollowAPP',
         'cancelUserFollowAPP'
       ])
+    },
+    components: {
+      AnimateDot
     }
   };
 </script>

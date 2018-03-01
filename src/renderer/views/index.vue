@@ -68,8 +68,9 @@
         if (action === 'send-account' && !this.account.id) {
           const { account } = data;
           this.setAccount(account);
-          this.fetchFollowAPPs();
         }
+        // 获取关注的应用
+        this.fetchFollowAPPs();
       });
     },
     methods: {

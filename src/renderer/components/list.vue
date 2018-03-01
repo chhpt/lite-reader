@@ -6,8 +6,11 @@
         <div class="article-title" @click="loadArticle(article)">
           {{article.title}}
         </div>
-        <div class="article-intro">
+        <div class="article-summary">
           {{article.summary}}
+        </div>
+        <div class="time">
+          {{article.time | formatTime}}
         </div>
       </div>
       <div class="right">
@@ -45,6 +48,7 @@
     },
     computed: {
       ...mapGetters([
+        'menu',
         'currentApp',
         'articleList',
         'activeItem'
@@ -61,6 +65,43 @@
             });
           });
         }
+      }
+    },
+    filters: {
+      formatTime(time) {
+        // 文字
+        if (Number(time) !== Number(time)) {
+          return time;
+        }
+        const now = Date.now();
+        const past = parseInt(now / 1000, 10) - time;
+        switch (true) {
+          case past < 3600: {
+            const t = parseInt(past / 60, 10);
+            return `${t !== 0 ? t : t + 1} 分钟前`;
+          }
+          case past < 86400: {
+            const t = parseInt(past / 3600, 10);
+            return `${t !== 0 ? t : t + 1} 小时前`;
+          }
+          default: {
+            const t = parseInt(past / 86400, 10);
+            return `${t !== 0 ? t : t + 1} 天前`;
+          }
+        }
+        // const current = new Date();
+        // const republic = new Date(v * 1000);
+        // const year = republic.getFullYear();
+        // const day = republic.getDate() < 10 ? `0${republic.getDate()}` : republic.getDate();
+        // const month = republic.getMonth() + 1 < 10 ?
+        // `0${republic.getMonth() + 1}` : republic.getMonth() + 1;
+        // const hour = republic.getHours() < 10 ? `0${republic.getHours()}` : republic.getHours();
+        // const minute = republic.getMinutes() < 10 ?
+        // `0${republic.getMinutes()}` : republic.getMinutes();
+        // if (current.getFullYear() === republic.getFullYear()) {
+        //   return `${month}-${day} ${hour}:${minute}`;
+        // }
+        // return `${year}-${month}-${day} ${hour}:${minute}`;
       }
     },
     methods: {
@@ -93,7 +134,14 @@
         // 最后一篇文章的 id
         const id = this.articleList[this.articleList.length - 1].id;
         const { type, appId, remoteid } = this.currentApp;
-        const { name } = this.activeItem.name ? this.activeItem : this.menu[0];
+        let name;
+        if (this.activeItem && this.activeItem.name) {
+          name = this.activeItem.name;
+        } else if (this.menu.length) {
+          name = this.menu[0].name;
+        } else {
+          name = 'home';
+        }
         try {
           await this.fetchMoreArticles({
             type,
@@ -166,10 +214,14 @@
       line-height: 3.6rem;
       cursor: pointer;
     }
-    .article-intro {
+    .article-summary {
       margin: 1rem 0;
       font-size: 1.6rem;
       line-height: 2.5rem;
+    }
+    .time {
+      margin-top: 1.5rem;
+      color: #606266;
     }
   }
 

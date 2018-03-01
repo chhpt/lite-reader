@@ -31,7 +31,7 @@
           </el-popover>
         </el-form-item>
         <el-form-item label="密码" prop="password" :class="{password: register}">
-          <el-input type="password" v-model="userForm.password"></el-input>
+          <el-input type="password" v-model="userForm.password" @keyup.enter.native="handleAction"></el-input>
         </el-form-item>
         <el-form-item label="验证码" prop="code" class="code" v-if="register">
           <el-input v-model="userForm.code"></el-input>
