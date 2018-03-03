@@ -1,11 +1,10 @@
 <template>
   <div id="root">
     <el-container>
-      <el-aside id="aside" :style="sidebarStyle">
-        <Aside :close.sync="close" @update:close="toggleSidebar"></Aside>
+      <el-aside :width="sideWidth">
+        <Aside :close.sync="close"></Aside>
       </el-aside>
-      <el-main id="main"
-               v-loading="loading"
+      <el-main v-loading="loading"
                element-loading-text="拼命加载中">
         <Main></Main>
       </el-main>
@@ -16,7 +15,6 @@
 <script>
   import { mapGetters, mapMutations, mapActions } from 'vuex';
   import { ipcRenderer } from 'electron';
-  import Split from 'split.js';
   import Aside from './layout/aside';
   import Main from './layout/main';
 
@@ -24,34 +22,19 @@
     name: 'index',
     data() {
       return {
-        close: false,
-        sidebarStyle: {
-          width: '18rem'
-        }
+        close: true
       };
     },
     computed: {
+      sideWidth() {
+        return this.close ? '8rem' : '18rem';
+      },
       ...mapGetters([
         'loading',
         'account'
       ])
     },
     mounted() {
-      // split panel
-      Split(['#aside', '#main'], {
-        sizes: [25, 75],
-        minSize: [80, 600],
-        cursor: 'col-resize',
-        gutterStyle() {
-          return {
-            width: '2px'
-          };
-        },
-        onDrag: () => {
-          const width = document.querySelector('#c-aside').clientWidth;
-          this.close = width < 180;
-        }
-      });
       // 账户存在，获取用户的应用列表
       if (this.account.id) {
         this.fetchFollowAPPs().then((res) => {
@@ -74,9 +57,6 @@
       });
     },
     methods: {
-      toggleSidebar() {
-        this.sidebarStyle.width = this.close ? '8rem' : '18rem';
-      },
       ...mapMutations([
         'setAccount'
       ]),
@@ -91,7 +71,7 @@
   };
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
   #root {
     height: 100%;
     .el-container {
@@ -107,11 +87,8 @@
 
     .el-main {
       height: 100%;
+      width: calc(100% - 8rem);
       padding: 0;
     }
-  }
-
-  .gutter {
-    cursor: col-resize;
   }
 </style>

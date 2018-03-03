@@ -16,10 +16,16 @@ const service = axios.create({
 service.interceptors.request.use(config => config, error => Promise.reject(error));
 
 // 添加一个返回拦截器
-service.interceptors.response.use(response => response.data, (error) => {
+service.interceptors.response.use(response => {
+  const res = response.data;
+  // 用户身份信息过期
+  if (res.expired) {
+    store.commit('setAccount', {});
+  }
+  return res;
+}, (error) => {
   // 错误，重定向到错误页面
   if (error.response) {
-    store.commit('setErrorInfo', error.response);
     if (error.response.status) {
       const { status } = error.response;
       if (status === 404) {

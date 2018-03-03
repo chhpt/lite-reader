@@ -84,7 +84,7 @@
 
 <style lang="scss" scoped>
   #setting {
-    padding: 1px;
+    padding-top: 3rem;
   }
 
   .setting-title {

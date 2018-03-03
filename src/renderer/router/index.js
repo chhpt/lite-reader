@@ -21,7 +21,7 @@ const Feedback = r => require.ensure([], () => r(require('@/views/window/feedbac
 
 // 组件
 const Reader = r => require.ensure([], () => r(require('@/components/reader')), 'reader');
-const Account = r => require.ensure([], () => r(require('@/components/account')), 'account');
+const Account = r => require.ensure([], () => r(require('@/components/account/index')), 'account');
 const Setting = r => require.ensure([], () => r(require('@/components/setting')), 'setting');
 
 

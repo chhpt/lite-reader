@@ -74,6 +74,9 @@
         this.$router.push('/addapp');
       },
       async getAppMenu(app, e) {
+        // 设置应用名称
+        this.setCurrentApp(app);
+
         // 设置选择应用的背景
         const { parentNode } = e.target.parentNode.className ? e.target : e.target.parentNode;
         const attr = parentNode.getAttribute('class');
@@ -85,14 +88,14 @@
         // 加载选择应用的栏目，并加载第一个栏目的文章列表
         const { type, appId, remoteid } = app;
         this.setLoading(true);
-        // 设置应用名称
-        this.setCurrentApp(app);
         this.setActiveItem({});
+
         // 获取栏目列表
         const menu = await this.fetchMenu({
           appId,
           type
         });
+
         await this.fetchArticleList({
           type,
           appId,

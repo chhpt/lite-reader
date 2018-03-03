@@ -20,7 +20,7 @@
     </el-header>
     <AnimateDot :loading="loading" class="loading-animation"></AnimateDot>
     <el-main class="article-list">
-      <List></List>
+      <List articlePath="/app_reader"></List>
     </el-main>
   </el-container>
 </template>

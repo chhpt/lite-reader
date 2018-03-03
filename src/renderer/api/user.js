@@ -63,6 +63,37 @@ const updateUserInfo = (username, email) => service({
   }
 });
 
+const changePassword = (oldPassword, newPassword) => service({
+  url: '/auth/change_password',
+  method: 'POST',
+  data: {
+    oldPassword,
+    newPassword
+  }
+});
+
+const getCollectArticles = () => service({
+  url: '/auth/get_collect_articles',
+  method: 'GET'
+});
+
+
+const collectArticle = (article) => service({
+  url: '/auth/collect_article',
+  method: 'POST',
+  data: {
+    article
+  }
+});
+
+const cancelCollectArticle = (url) => service({
+  url: '/auth/cancel_collect_article',
+  method: 'POST',
+  data: {
+    url
+  }
+});
+
 export default {
   sendVerificationCode,
   register,
@@ -72,4 +103,8 @@ export default {
   cancelFollowAPP,
   getFollowAPPs,
   updateUserInfo,
+  changePassword,
+  getCollectArticles,
+  collectArticle,
+  cancelCollectArticle
 };

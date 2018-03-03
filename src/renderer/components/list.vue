@@ -30,6 +30,7 @@
 <script>
   import { mapGetters, mapActions, mapMutations } from 'vuex';
   import ScrollReveal from 'scrollreveal';
+  import Utils from '../utils';
 
   export default {
     name: 'list',
@@ -45,6 +46,13 @@
         },
         loading: false
       };
+    },
+    props: {
+      articlePath: {
+        type: String,
+        required: true,
+        default: ''
+      }
     },
     computed: {
       ...mapGetters([
@@ -68,41 +76,9 @@
       }
     },
     filters: {
-      formatTime(time) {
-        // 文字
-        if (Number(time) !== Number(time)) {
-          return time;
-        }
-        const now = Date.now();
-        const past = parseInt(now / 1000, 10) - time;
-        switch (true) {
-          case past < 3600: {
-            const t = parseInt(past / 60, 10);
-            return `${t !== 0 ? t : t + 1} 分钟前`;
-          }
-          case past < 86400: {
-            const t = parseInt(past / 3600, 10);
-            return `${t !== 0 ? t : t + 1} 小时前`;
-          }
-          default: {
-            const t = parseInt(past / 86400, 10);
-            return `${t !== 0 ? t : t + 1} 天前`;
-          }
-        }
-        // const current = new Date();
-        // const republic = new Date(v * 1000);
-        // const year = republic.getFullYear();
-        // const day = republic.getDate() < 10 ? `0${republic.getDate()}` : republic.getDate();
-        // const month = republic.getMonth() + 1 < 10 ?
-        // `0${republic.getMonth() + 1}` : republic.getMonth() + 1;
-        // const hour = republic.getHours() < 10 ? `0${republic.getHours()}` : republic.getHours();
-        // const minute = republic.getMinutes() < 10 ?
-        // `0${republic.getMinutes()}` : republic.getMinutes();
-        // if (current.getFullYear() === republic.getFullYear()) {
-        //   return `${month}-${day} ${hour}:${minute}`;
-        // }
-        // return `${year}-${month}-${day} ${hour}:${minute}`;
-      }
+      formatTime: Utils.formatTime
+    },
+    mounted() {
     },
     methods: {
       // 加载文章
@@ -112,20 +88,31 @@
         // 文章内容是否已经存在
         if (article.content) {
           this.setArticle(article);
-        } else {
-          try {
-            await this.fetchArticle({
-              type,
-              appId,
-              article
-            });
-          } catch (err) {
-            this.setLoading(false);
-            throw new Error(err);
-          }
+          this.setLoading(false);
+          this.$router.push(this.articlePath);
+          return 1;
         }
-        this.setLoading(false);
-        this.$router.replace('/reader');
+        // 获取文章
+        try {
+          const res = await this.fetchArticle({
+            type,
+            appId,
+            article
+          });
+          if (res.status) {
+            this.setLoading(false);
+            this.$router.push(this.articlePath);
+          } else {
+            // 服务端提示错误
+            this.setLoading(false);
+            this.$message(res.error);
+          }
+        } catch (err) {
+          // 其他错误
+          this.setLoading(false);
+          throw new Error(err);
+        }
+        return 1;
       },
       // 加载更多文章
       async loadMoreArticles() {
@@ -207,6 +194,7 @@
 
   .article-info {
     height: 100%;
+    max-width: 100%;
     text-align: justify;
     .article-title {
       font-size: 2.2rem;
@@ -214,11 +202,17 @@
       line-height: 3.6rem;
       cursor: pointer;
     }
+
     .article-summary {
       margin: 1rem 0;
+      max-width: 100%;
       font-size: 1.6rem;
       line-height: 2.5rem;
+      // 过长的英文单词超过宽度
+      word-wrap: break-word;
+      word-break: normal;
     }
+
     .time {
       margin-top: 1.5rem;
       color: #606266;

@@ -4,7 +4,7 @@
       <!--栏目-->
       <Header :backIcon="false" :menu="menu" @handleTabClick="handleTabClick"></Header>
       <el-main id="articles">
-        <List></List>
+        <List articlePath="/reader"></List>
       </el-main>
     </el-container>
   </div>
@@ -43,11 +43,15 @@
         const { type, appId, remoteid } = this.currentApp;
         const { name } = this.activeItem;
         try {
-          await this.fetchArticleList({
+          const res = await this.fetchArticleList({
             type,
             appId,
             column: type ? name : remoteid
           });
+          // 提示错误
+          if (!res.status) {
+            this.$message(res.error);
+          }
         } catch (err) {
           this.setLoading(false);
           throw new Error(err);
@@ -76,6 +80,7 @@
   }
 
   #article-list .el-main {
+    padding: 0;
     height: calc(100% - 50px);
   }
 </style>

@@ -9,12 +9,16 @@ const {
   getFollowAPPs,
   updateUserInfo,
   followAPP,
-  cancelFollowAPP
+  cancelFollowAPP,
+  getCollectArticles,
+  collectArticle,
+  cancelCollectArticle
 } = API;
 
 const state = {
   account: {},
   followAPPs: [],
+  collectArticles: [],
   themeColor: {
     label: '',
     value: ''
@@ -32,7 +36,9 @@ const getters = {
     }
     const theme = db.get('user.themeColor').value();
     return colors[theme];
-  }
+  },
+  // 过滤掉不收藏的文章
+  collectArticles: state => state.collectArticles.filter((e) => !e.delete)
 };
 
 const mutations = {
@@ -48,6 +54,9 @@ const mutations = {
   setThemeColor(state, color) {
     state.themeColor = color;
     db.set('user.themeColor', color).write();
+  },
+  setCollectArticles(state, articles) {
+    state.collectArticles = articles || [];
   }
 };
 
@@ -78,24 +87,22 @@ const actions = {
     }
     return res;
   },
+
   async changeUserInfo({ commit }, payload) {
     const { username, email } = payload;
     const res = await updateUserInfo(username, email);
     if (res.status) {
       const { account } = res;
       commit('setAccount', account);
-    } else if (res.expired) {
-      commit('setAccount', {});
     }
     return res;
   },
+
   async fetchFollowAPPs({ commit }) {
     const res = await getFollowAPPs();
     const { apps } = res;
     if (res.status) {
       commit('setFollowAPPs', apps);
-    } else if (res.expired) {
-      commit('setAccount', {});
     }
     return res;
   },
@@ -106,8 +113,6 @@ const actions = {
     if (res.status) {
       const { apps } = res;
       commit('setFollowAPPs', apps);
-    } else if (res.expired) {
-      commit('setAccount', {});
     }
     return res;
   },
@@ -118,8 +123,47 @@ const actions = {
     if (res.status) {
       const { apps } = res;
       commit('setFollowAPPs', apps);
-    } else if (res.expired) {
-      commit('setAccount', {});
+    }
+    return res;
+  },
+
+  async fetchCollectArticles({ commit }) {
+    const res = await getCollectArticles();
+    if (res.status) {
+      commit('setCollectArticles', res.articles);
+    }
+    return res;
+  },
+
+  async collectArticle({ commit, getters }, payload) {
+    // 获取当前应用
+    const app = getters.currentApp;
+    const { article } = payload;
+    // 防止文章内容被删除
+    const copyArticle = Object.assign({}, article);
+    copyArticle.content = null;
+    copyArticle.summary = copyArticle.summary.length < 256
+      ? copyArticle.summary
+      : copyArticle.summary.slice(0, 256);
+    copyArticle.appName = app.title;
+    const res = await collectArticle(copyArticle);
+    if (res.status) {
+      commit('setCollectArticles', res.articles);
+    }
+    return res;
+  },
+
+  async cancelCollectArticle({ commit, state }, payload) {
+    const { article } = payload;
+    const res = await cancelCollectArticle(article.url);
+    if (res.status) {
+      // 拷贝数组
+      const source = state.collectArticles.slice(0);
+      // 找到文章，标志删除
+      const index = source.findIndex((e) => e.title === article.title);
+      source.splice(index, 1);
+      // 更新 state
+      commit('setCollectArticles', source);
     }
     return res;
   }

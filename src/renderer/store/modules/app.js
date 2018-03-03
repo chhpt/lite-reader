@@ -3,6 +3,16 @@ import db from '../../../dataStore';
 
 const { getMenu, getArticleList, getArticle } = API;
 
+// 对文章按时间排序
+const sortArticleList = (articles) => articles.sort((a, b) => {
+  if (Date.parse(a.time)) {
+    return Date.parse(b.time) - Date.parse(a.time);
+  } else if (parseInt(a.time, 10) < Date.now() / 1000) {
+    return parseInt(b.time, 10) - parseInt(a.time, 10);
+  }
+  return 0;
+});
+
 const state = {
   // 应用是否打开过
   opened: false,
@@ -68,31 +78,41 @@ const actions = {
   async fetchArticleList({ commit }, payload) {
     commit('setArticleList', []);
     const type = payload.type ? Number(payload.type) : 0;
-    const articleList = await getArticleList(
+    const res = await getArticleList(
       type, payload.appId, payload.column
     );
-    commit('setArticleList', articleList);
-    return articleList;
+    if (res.status) {
+      const { articleList } = res;
+      const sortList = sortArticleList(articleList.slice(0));
+      commit('setArticleList', sortList);
+    }
+    return res;
   },
 
   async fetchMoreArticles({ commit, state }, payload) {
     const type = payload.type ? Number(payload.type) : 0;
-    const moreArticles = await getArticleList(
+    const res = await getArticleList(
       type, payload.appId, payload.column, payload.id, payload.page
     );
-    const articleList = state.articleList.concat(moreArticles);
-    commit('setArticleList', articleList);
-    return articleList;
+    if (res.status) {
+      const { articleList } = res;
+      const sortList = sortArticleList(articleList);
+      const list = state.articleList.concat(sortList);
+      commit('setArticleList', list);
+    }
+    return res;
   },
 
   async fetchArticle({ commit }, payload) {
     commit('setArticle', {});
     const type = payload.type ? Number(payload.type) : 0;
-    const article = await getArticle(
+    const res = await getArticle(
       type, payload.appId, payload.article
     );
-    commit('setArticle', article);
-    return article;
+    if (res.status) {
+      commit('setArticle', res.article);
+    }
+    return res;
   }
 };
 
