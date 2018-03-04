@@ -34,7 +34,10 @@ export default new Router({
       children: [
         {
           path: 'list',
-          component: ArticleList
+          component: ArticleList,
+          meta: {
+            position: ''
+          }
         },
         {
           path: 'reader',
@@ -85,5 +88,5 @@ export default new Router({
       path: '*',
       redirect: '/'
     },
-  ],
+  ]
 });

@@ -1,29 +1,31 @@
 <template>
   <div id="list">
-    <!--列表-->
-    <el-card v-for="article in articleList" :body-style="cardStyle" :key="article.id" class="article">
-      <div class="article-info">
-        <div class="article-title" @click="loadArticle(article)">
-          {{article.title}}
+    <div class="list-inner">
+      <!--列表-->
+      <el-card v-for="(article) in articleList" :body-style="cardStyle" :key="article.id" class="article">
+        <div class="article-info">
+          <div class="article-title" @click="loadArticle(article)">
+            {{article.title}}
+          </div>
+          <div class="article-summary">
+            {{article.summary}}
+          </div>
+          <div class="time">
+            {{article.time | formatTime}}
+          </div>
         </div>
-        <div class="article-summary">
-          {{article.summary}}
+        <div class="right">
+          <div class="image-wrapper" v-if="article.image">
+            <img :src="article.image" alt="文章图片" v-if="article.image">
+          </div>
         </div>
-        <div class="time">
-          {{article.time | formatTime}}
-        </div>
+      </el-card>
+      <!--有文章时才显示加载更多-->
+      <div class="load-more" v-if="articleList.length">
+        <el-button plain :loading="loading" @click="loadMoreArticles">
+          加载更多
+        </el-button>
       </div>
-      <div class="right">
-        <div class="image-wrapper" v-if="article.image">
-          <img :src="article.image" alt="文章图片" v-if="article.image">
-        </div>
-      </div>
-    </el-card>
-    <!--有文章时才显示加载更多-->
-    <div class="load-more" v-if="articleList.length">
-      <el-button plain :loading="loading" @click="loadMoreArticles">
-        加载更多
-      </el-button>
     </div>
   </div>
 </template>
@@ -62,6 +64,20 @@
         'activeItem'
       ])
     },
+    mounted() {
+      // 保留滚动位置
+      document.querySelector('#list').scrollTop = this.$route.meta.position;
+      // 组件重新挂载（从 reader 到 list）
+      if (this.articleList.length) {
+        this.$nextTick(() => {
+          const container = document.querySelector('#list');
+          this.scrollReveal.reveal('.article', {
+            container,
+            duration: 500
+          });
+        });
+      }
+    },
     watch: {
       articleList(v) {
         if (v.length) {
@@ -78,11 +94,11 @@
     filters: {
       formatTime: Utils.formatTime
     },
-    mounted() {
-    },
     methods: {
       // 加载文章
       async loadArticle(article) {
+        // 在路由元中记录滚动位置，便于下次恢复位置
+        this.$route.meta.position = document.querySelector('#list').scrollTop;
         this.setLoading(true);
         const { type, appId } = this.currentApp;
         // 文章内容是否已经存在
