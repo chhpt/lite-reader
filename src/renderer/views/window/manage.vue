@@ -23,20 +23,9 @@
 
 <script>
   import Icon from '../../components/Icon';
-  import bus from '../../utils/bus';
 
   export default {
     name: 'setting',
-    mounted() {
-      bus.$on('manage-message', (message) => {
-        this.$notify({
-          message,
-          title: '提示',
-          duration: 2000,
-          offset: 30
-        });
-      });
-    },
     methods: {
       handleMenuSelect(index) {
         this.$router.push(index);

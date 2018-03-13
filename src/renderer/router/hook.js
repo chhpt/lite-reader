@@ -1,7 +1,6 @@
 import store from '../store';
 import router from './index';
 import db from '../../dataStore';
-import bus from '../utils/bus';
 
 // 记录浏览历史路由路径
 router.beforeEach((to, from, next) => {
@@ -17,7 +16,6 @@ router.beforeEach((to, from, next) => {
     if (account.id) {
       next();
     } else {
-      bus.$emit('manage-message', '你尚未登录，请先登录你的账号!');
       next('/manage/login');
     }
   } else {
