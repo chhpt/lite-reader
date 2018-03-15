@@ -25,6 +25,20 @@
           <div class="ending" v-if="article.title">
             --------- END ---------
           </div>
+          <div class="change-page" v-if="article.title">
+            <div class="prev" v-if="prev">
+              <div @click="loadArticle(prev)">
+                上一篇：
+                {{prev&&prev.title}}
+              </div>
+            </div>
+            <div class="next" v-if="next">
+              <div  @click="loadArticle(next)">
+                下一篇：
+                {{next&&next.title}}
+              </div>
+            </div>
+          </div>
         </div>
       </el-main>
     </el-container>
@@ -32,7 +46,7 @@
 </template>
 
 <script>
-  import { mapGetters, mapActions } from 'vuex';
+  import { mapGetters, mapMutations, mapActions } from 'vuex';
   import Header from './header';
   import Icon from './Icon';
   import Utils from '../utils';
@@ -41,7 +55,8 @@
     name: 'reader',
     data() {
       return {
-        collected: false
+        collected: false,
+        page: 0,
       };
     },
     filters: {
@@ -58,15 +73,82 @@
       });
     },
     computed: {
+      // 上一篇文章
+      prev() {
+        const index = this.articleList.findIndex(e => e.title === this.article.title);
+        if (index <= 0) {
+          return null;
+        }
+        return this.articleList[index - 1];
+      },
+      // 下一篇文章
+      next() {
+        const index = this.articleList.findIndex(e => e.title === this.article.title);
+        // 最后一篇文章，自动加载下一个列表
+        if (index === this.articleList.length - 1) {
+          this.loadMoreArticles();
+        }
+        return this.articleList[index + 1];
+      },
       ...mapGetters([
         'article',
-        'routeHistory'
+        'routeHistory',
+        'articleList',
+        'currentApp',
+        'activeItem'
       ])
     },
     methods: {
       back() {
         const path = this.routeHistory.pop();
         this.$router.push(path);
+      },
+      async loadArticle(article) {
+        this.setLoading(true);
+        const { type, appId } = this.currentApp;
+        try {
+          const res = await this.fetchArticle({
+            type,
+            appId,
+            article
+          });
+          if (res.status) {
+            this.setLoading(false);
+          } else {
+            // 服务端提示错误
+            this.setLoading(false);
+            this.$message(res.error);
+          }
+        } catch (err) {
+          // 其他错误
+          this.setLoading(false);
+          throw new Error(err);
+        }
+      },
+      async loadMoreArticles() {
+        this.page = this.page + 1;
+        // 最后一篇文章的 id
+        const id = this.articleList[this.articleList.length - 1].id;
+        const { type, appId, remoteid } = this.currentApp;
+        let name;
+        if (this.activeItem && this.activeItem.name) {
+          name = this.activeItem.name;
+        } else {
+          name = 'home';
+        }
+        try {
+          await this.fetchMoreArticles({
+            type,
+            appId,
+            id,
+            column: type ? name : remoteid,
+            page: this.page
+          });
+        } catch (err) {
+          this.loading = false;
+          throw new Error(err);
+        }
+        this.loading = false;
       },
       handleOpenSource() {
         const { url } = this.article;
@@ -103,10 +185,13 @@
           });
         }
       },
+      ...mapMutations(['setLoading']),
       ...mapActions([
         'collectArticle',
         'cancelCollectArticle',
-        'fetchCollectArticles'
+        'fetchCollectArticles',
+        'fetchMoreArticles',
+        'fetchArticle'
       ])
     },
     components: {
@@ -170,6 +255,17 @@
       margin: 2rem 0;
       display: flex;
       justify-content: center;
+    }
+  }
+
+  .change-page {
+    margin-top: 3rem;
+    .prev,
+    .next {
+      margin: 2rem 0;
+      color: #556D88;
+      text-decoration: underline;
+      cursor: pointer;
     }
   }
 </style>
