@@ -8,7 +8,7 @@
             {{article.title}}
           </div>
           <div class="article-summary">
-            {{article.summary}}
+            {{article.summary | formatSummary}}
           </div>
           <div class="time">
             {{article.time | formatTime}}
@@ -92,7 +92,10 @@
       }
     },
     filters: {
-      formatTime: Utils.formatTime
+      formatTime: Utils.formatTime,
+      formatSummary(summary) {
+        return summary.length > 128 ? `${summary.slice(0, 125)} ...` : summary;
+      }
     },
     methods: {
       // 加载文章

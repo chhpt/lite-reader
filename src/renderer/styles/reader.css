@@ -87,3 +87,8 @@ blockquote {
    padding: 0 1.3rem;
    color: #666;
 }
+
+p {
+   margin: 2rem 0;
+   line-height: 3.2rem;
+}

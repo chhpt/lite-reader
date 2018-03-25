@@ -233,6 +233,7 @@
 
   .article {
     width: 80%;
+    max-width: 72rem;
     margin: 4rem auto;
     text-align: justify;
     font-weight: 400;
@@ -243,7 +244,7 @@
     }
     .publish-time {
       margin: 2rem 0;
-      font-size: 2rem;
+      font-size: 1.8rem;
       display: flex;
       align-items: center;
       span {
